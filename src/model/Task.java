@@ -1,4 +1,4 @@
-package taskType;
+package model;
 
 import java.util.Objects;
 
@@ -65,12 +65,13 @@ public class Task {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return Objects.equals(name, task.name) && Objects.equals(description, task.description);
+        return Objects.equals(id, task.id) && Objects.equals(name, task.name)
+                && Objects.equals(description, task.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description);
+        return Objects.hash(id, name, description);
     }
 
     @Override

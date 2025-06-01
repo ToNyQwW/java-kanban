@@ -1,4 +1,6 @@
-import taskType.*;
+package service;
+
+import model.*;
 
 import java.util.stream.Collectors;
 import java.util.*;
@@ -35,7 +37,7 @@ public class TaskManager {
         subtasksMap.put(subTasks.getId(), subTasks);
 
         EpicTask epicTask = getEpicTask(subTasks.getEpicId());
-        epicTask.addSubTask(subTasks);
+        epicTask.put(subTasks);
 
         updateEpicTaskStatus(epicTask);
     }
@@ -61,7 +63,7 @@ public class TaskManager {
         subtasksMap.put(subTasks.getId(), subTasks);
 
         EpicTask epicTask = getEpicTask(subTasks.getEpicId());
-        epicTask.addSubTask(subTasks);
+        epicTask.put(subTasks);
 
         updateEpicTaskStatus(epicTask);
         return true;
@@ -97,23 +99,23 @@ public class TaskManager {
     }
 
 
-    public Task removeTask(int id) {
-        return tasksMap.remove(id);
+    public void removeTask(int id) {
+        tasksMap.remove(id);
     }
 
-    public SubTask removeSubTask(int id) {
-        int epicId = getSubTask(id).getEpicId();
-        getEpicTask(epicId).getSubInEpic().remove(id);
+    public void removeSubTask(int id) {
+        EpicTask epicTask = getEpicTask(getSubTask(id).getEpicId());
+        epicTask.getSubInEpic().remove(id);
 
-        updateEpicTaskStatus(getEpicTask(epicId));
-        return subtasksMap.remove(id);
+        updateEpicTaskStatus(epicTask);
+        subtasksMap.remove(id);
     }
 
     // считаю, что без эпика подзадачи не существуют
-    public EpicTask removeEpicTasksMap(int id) {
+    public void removeEpicTasksMap(int id) {
         subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
         getEpicTask(id).getSubInEpic().clear();
-        return epicTasksMap.remove(id);
+        epicTasksMap.remove(id);
     }
 
 
@@ -122,23 +124,24 @@ public class TaskManager {
     }
 
     public void clearSubtasksMap() {
+        subtasksMap.clear();
         for (EpicTask epicTask : epicTasksMap.values()) {
             epicTask.getSubInEpic().clear();
+            updateEpicTaskStatus(epicTask);
         }
-        subtasksMap.clear();
     }
 
     public void clearEpicTasksMap() {
-        clearSubtasksMap();
+        subtasksMap.clear();
         epicTasksMap.clear();
     }
 
 
-    public Collection<Task> getTasksList() {
+    public List<Task> getTasksList() {
         return tasksMap.values().stream().toList();
     }
 
-    public Collection<SubTask> getSubTasksList() {
+    public List<SubTask> getSubTasksList() {
         return subtasksMap.values().stream().toList();
     }
 
@@ -146,8 +149,8 @@ public class TaskManager {
         return epicTasksMap.values().stream().toList();
     }
 
-    public Map<Integer, SubTask> getSubTasksFromEpicTask(EpicTask epicTask) {
-        return epicTask.getSubInEpic();
+    public List<SubTask> getSubTasksFromEpicTaskId(int id) {
+        return getEpicTask(id).getSubInEpic().values().stream().toList();
     }
 
 

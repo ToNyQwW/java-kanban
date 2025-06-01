@@ -1,4 +1,4 @@
-package taskType;
+package model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class EpicTask extends Task {
         return subInEpic;
     }
 
-    public void addSubTask(SubTask subTasks) {
+    public void put(SubTask subTasks) {
         subInEpic.put(subTasks.getId(), subTasks);
     }
 }

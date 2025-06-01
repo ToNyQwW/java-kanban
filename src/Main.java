@@ -1,7 +1,5 @@
-import taskType.EpicTask;
-import taskType.SubTask;
-import taskType.Task;
-import taskType.TaskStatus;
+import model.*;
+import service.TaskManager;
 
 public class Main {
 

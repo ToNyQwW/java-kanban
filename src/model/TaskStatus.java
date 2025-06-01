@@ -1,4 +1,4 @@
-package taskType;
+package model;
 
 public enum TaskStatus {
 
