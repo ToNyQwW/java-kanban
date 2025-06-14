@@ -1,23 +1,28 @@
 package service;
 
 import model.*;
+import service.interfaces.HistoryManager;
+import service.interfaces.TaskManager;
+import utill.Managers;
 
 import java.util.stream.Collectors;
 import java.util.*;
 
-public class TaskManager {
+public class InMemoryTaskManager implements TaskManager {
 
     private final Map<Integer, Task> tasksMap;
     private final Map<Integer, SubTask> subtasksMap;
     private final Map<Integer, EpicTask> epicTasksMap;
 
+    private final HistoryManager historyManager;
+
     private int id;
 
-    public TaskManager() {
+    public InMemoryTaskManager() {
         tasksMap = new HashMap<>();
         subtasksMap = new HashMap<>();
         epicTasksMap = new HashMap<>();
-        id = 0;
+        historyManager = Managers.getDefaultHistory();
     }
 
     private void increaseId() {
@@ -25,12 +30,14 @@ public class TaskManager {
     }
 
 
+    @Override
     public void addTask(Task task) {
         increaseId();
         task.setId(id);
         tasksMap.put(task.getId(), task);
     }
 
+    @Override
     public void addSubTask(SubTask subTasks) {
         increaseId();
         subTasks.setId(id);
@@ -42,6 +49,7 @@ public class TaskManager {
         updateEpicTaskStatus(epicTask);
     }
 
+    @Override
     public void addEpicTask(EpicTask epicTask) {
         increaseId();
         epicTask.setId(id);
@@ -49,6 +57,7 @@ public class TaskManager {
     }
 
 
+    @Override
     public boolean updateTask(Task task) {
         if (!tasksMap.containsKey(task.getId())) {
             return false;
@@ -56,6 +65,7 @@ public class TaskManager {
         return tasksMap.put(task.getId(), task) != null;
     }
 
+    @Override
     public boolean updateSubTask(SubTask subTasks) {
         if (!subtasksMap.containsKey(subTasks.getId())) {
             return false;
@@ -70,6 +80,7 @@ public class TaskManager {
     }
 
     // сделал так, что эпик не может менять себе статус через конструктор
+    @Override
     public boolean updateEpicTask(EpicTask epicTask) {
         if (!epicTasksMap.containsKey(epicTask.getId())) {
             return false;
@@ -99,10 +110,12 @@ public class TaskManager {
     }
 
 
+    @Override
     public void removeTask(int id) {
         tasksMap.remove(id);
     }
 
+    @Override
     public void removeSubTask(int id) {
         EpicTask epicTask = getEpicTask(getSubTask(id).getEpicId());
         epicTask.getSubInEpic().remove(id);
@@ -112,17 +125,20 @@ public class TaskManager {
     }
 
     // считаю, что без эпика подзадачи не существуют
-    public void removeEpicTasksMap(int id) {
+    @Override
+    public void removeEpicTask(int id) {
         subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
         getEpicTask(id).getSubInEpic().clear();
         epicTasksMap.remove(id);
     }
 
 
+    @Override
     public void clearTasksMap() {
         tasksMap.clear();
     }
 
+    @Override
     public void clearSubtasksMap() {
         subtasksMap.clear();
         for (EpicTask epicTask : epicTasksMap.values()) {
@@ -131,38 +147,62 @@ public class TaskManager {
         }
     }
 
+    @Override
     public void clearEpicTasksMap() {
         subtasksMap.clear();
         epicTasksMap.clear();
     }
 
 
+    @Override
     public List<Task> getTasksList() {
         return tasksMap.values().stream().toList();
     }
 
+    @Override
     public List<SubTask> getSubTasksList() {
         return subtasksMap.values().stream().toList();
     }
 
+    @Override
     public List<EpicTask> getEpicTasksList() {
         return epicTasksMap.values().stream().toList();
     }
 
+    @Override
     public List<SubTask> getSubTasksFromEpicTaskId(int id) {
         return getEpicTask(id).getSubInEpic().values().stream().toList();
     }
 
 
+    @Override
     public Task getTask(int id) {
-        return tasksMap.get(id);
+        Task task = tasksMap.get(id);
+        addInHistory(task);
+        return task;
     }
 
+
+    @Override
     public SubTask getSubTask(int id) {
-        return subtasksMap.get(id);
+        SubTask subTask = subtasksMap.get(id);
+        addInHistory(subTask);
+        return subTask;
     }
 
+    @Override
     public EpicTask getEpicTask(int id) {
-        return epicTasksMap.get(id);
+        EpicTask epicTask = epicTasksMap.get(id);
+        addInHistory(epicTask);
+        return epicTask;
+    }
+
+    private void addInHistory(Task task) {
+        historyManager.add(task);
+    }
+
+    @Override
+    public Deque<Task> getHistory() {
+        return historyManager.getHistory();
     }
 }

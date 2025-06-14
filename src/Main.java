@@ -1,13 +1,13 @@
 import model.*;
-import service.TaskManager;
+import service.InMemoryTaskManager;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        TaskManager taskManager = new TaskManager();
+        InMemoryTaskManager taskManager = new InMemoryTaskManager();
 
-        // проверка taskManager ( по условиям из практикума)
+        // проверка taskManager(по условиям из практикума)
 
         Task task1 = new Task("Task1", " ", TaskStatus.IN_PROGRESS);
         Task task2 = new Task("Task2", " ");
@@ -43,7 +43,7 @@ public class Main {
         System.out.println(taskManager.getSubTasksList());
         System.out.println(taskManager.getTasksList());
 
-        taskManager.removeEpicTasksMap(epicTask1.getId());
+        taskManager.removeEpicTask(epicTask1.getId());
         taskManager.removeTask(task1.getId());
         taskManager.removeSubTask(subTask3.getId());
 
