@@ -1,34 +1,34 @@
 package service;
 
-import model.EpicTask;
-import model.SubTask;
-import model.Task;
-import org.junit.jupiter.api.BeforeAll;
+import model.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.interfaces.HistoryManager;
+import utill.Managers;
 
-import java.util.Deque;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    private static InMemoryHistoryManager historyManager;
+    private static HistoryManager historyManager;
 
-    @BeforeAll
-    static void setUp(){
-        historyManager = new InMemoryHistoryManager();
+    @BeforeEach
+    void setUp(){
+        historyManager = Managers.getDefaultHistory();
     }
 
     @Test
     void getHistoryWithEmptyViewedTasksHistory(){
-        Deque<Task> history = historyManager.getHistory();
+        List<Task> history = historyManager.getHistory();
         assertTrue(history.isEmpty());
     }
 
     @Test
     void addTaskToViewedTasksHistory(){
         historyManager.add(new Task("Name", "Description"));
-        Deque<Task> history = historyManager.getHistory();
+        List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
     }
 
@@ -37,7 +37,7 @@ class InMemoryHistoryManagerTest {
         for (int i = 0; i < 11; i++) {
             historyManager.add(new Task(i,"Name", "Description"));
         }
-        Deque<Task> history = historyManager.getHistory();
+        List<Task> history = historyManager.getHistory();
         assertEquals(InMemoryHistoryManager.MAX_SIZE_HISTORY, history.size());
         assertFalse(history.contains(new Task(0,"Name", "Description")));
 
@@ -48,7 +48,7 @@ class InMemoryHistoryManagerTest {
         historyManager.add(new Task("Name", "Description"));
         historyManager.add(new EpicTask(1,"Name", "Description"));
         historyManager.add(new SubTask("Name", "Description",1));
-        Deque<Task> history = historyManager.getHistory();
+        List<Task> history = historyManager.getHistory();
         assertEquals(3, history.size());
     }
 }

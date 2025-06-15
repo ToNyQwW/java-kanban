@@ -2,11 +2,11 @@ package service.interfaces;
 
 import model.Task;
 
-import java.util.Deque;
+import java.util.List;
 
 public interface HistoryManager {
 
     void add(Task task);
 
-    Deque<Task> getHistory();
+    List<Task> getHistory();
 }

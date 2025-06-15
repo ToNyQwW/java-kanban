@@ -2,7 +2,6 @@ package service.interfaces;
 
 import model.*;
 
-import java.util.Deque;
 import java.util.List;
 
 public interface TaskManager {
@@ -45,5 +44,5 @@ public interface TaskManager {
 
     EpicTask getEpicTask(int id);
 
-    Deque<Task> getHistory();
+    List<Task> getHistory();
 }

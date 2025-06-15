@@ -5,8 +5,8 @@ import service.interfaces.HistoryManager;
 import service.interfaces.TaskManager;
 import utill.Managers;
 
-import java.util.stream.Collectors;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -43,7 +43,7 @@ public class InMemoryTaskManager implements TaskManager {
         subTasks.setId(id);
         subtasksMap.put(subTasks.getId(), subTasks);
 
-        EpicTask epicTask = getEpicTask(subTasks.getEpicId());
+        EpicTask epicTask = epicTasksMap.get(subTasks.getEpicId());
         epicTask.put(subTasks);
 
         updateEpicTaskStatus(epicTask);
@@ -72,7 +72,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasksMap.put(subTasks.getId(), subTasks);
 
-        EpicTask epicTask = getEpicTask(subTasks.getEpicId());
+        EpicTask epicTask = epicTasksMap.get(subTasks.getEpicId());
         epicTask.put(subTasks);
 
         updateEpicTaskStatus(epicTask);
@@ -117,7 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubTask(int id) {
-        EpicTask epicTask = getEpicTask(getSubTask(id).getEpicId());
+        EpicTask epicTask = epicTasksMap.get(getSubTask(id).getEpicId());
         epicTask.getSubInEpic().remove(id);
 
         updateEpicTaskStatus(epicTask);
@@ -128,7 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeEpicTask(int id) {
         subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
-        getEpicTask(id).getSubInEpic().clear();
+        epicTasksMap.get(id).getSubInEpic().clear();
         epicTasksMap.remove(id);
     }
 
@@ -171,7 +171,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<SubTask> getSubTasksFromEpicTaskId(int id) {
-        return getEpicTask(id).getSubInEpic().values().stream().toList();
+        return epicTasksMap.get(id).getSubInEpic().values().stream().toList();
     }
 
 
@@ -198,11 +198,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void addInHistory(Task task) {
-        historyManager.add(task);
+        if (task != null) {
+            historyManager.add(task);
+        }
     }
 
     @Override
-    public Deque<Task> getHistory() {
+    public List<Task> getHistory() {
         return historyManager.getHistory();
     }
 }

@@ -1,11 +1,12 @@
 import model.*;
-import service.InMemoryTaskManager;
+import service.interfaces.TaskManager;
+import utill.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        InMemoryTaskManager taskManager = new InMemoryTaskManager();
+        TaskManager taskManager = Managers.getDefault();
 
         // проверка taskManager(по условиям из практикума)
 

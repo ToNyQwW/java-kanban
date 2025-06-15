@@ -1,14 +1,11 @@
 package service;
 
-import model.EpicTask;
-import model.SubTask;
-import model.Task;
-import model.TaskStatus;
-
+import model.*;
 import org.junit.jupiter.api.*;
 import service.interfaces.TaskManager;
+import utill.Managers;
 
-import java.util.Deque;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +18,7 @@ class InMemoryTaskManagerTest {
 
     @BeforeAll
     static void setUp() {
-        taskManager = new InMemoryTaskManager();
+        taskManager = Managers.getDefault();
     }
 
     @BeforeEach
@@ -138,8 +135,16 @@ class InMemoryTaskManagerTest {
             taskManager.getSubTask(subTask.getId());
             taskManager.getEpicTask(epicTask.getId());
         }
-        Deque<Task> history = taskManager.getHistory();
+        List<Task> history = taskManager.getHistory();
         assertEquals(InMemoryHistoryManager.MAX_SIZE_HISTORY, history.size());
         assertEquals(epicTask, history.getFirst());
+    }
+
+    @Test
+    void IfGetTaskReturnNullDontAddInHistory() {
+        taskManager.getTask(10000);
+        taskManager.getSubTask(20000);
+        taskManager.getEpicTask(30000);
+        assertEquals(0, taskManager.getHistory().size());
     }
 }

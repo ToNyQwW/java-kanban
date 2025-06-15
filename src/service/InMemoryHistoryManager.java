@@ -3,18 +3,18 @@ package service;
 import model.Task;
 import service.interfaces.HistoryManager;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
     public static final int MAX_SIZE_HISTORY = 10;
 
-    private final Deque<Task> viewedTasksHistory;
+    private final List<Task> viewedTasksHistory;
 
 
     public InMemoryHistoryManager() {
-        viewedTasksHistory = new ArrayDeque<>();
+        viewedTasksHistory = new LinkedList<>();
     }
 
     @Override
@@ -26,7 +26,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     @Override
-    public Deque<Task> getHistory() {
-        return viewedTasksHistory;
+    public List<Task> getHistory() {
+        return List.copyOf(viewedTasksHistory);
     }
 }
