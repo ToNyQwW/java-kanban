@@ -13,7 +13,7 @@ class SubTaskTest {
     @BeforeAll
     static void setUp() {
         epicTask = new EpicTask(1, "EpicName", "EpicDescription");
-        subTask = new SubTask(2, "SubName", "SubDescription",TaskStatus.NEW, 1);
+        subTask = new SubTask(2, "SubName", "SubDescription", TaskStatus.NEW, 1);
     }
 
     @Test

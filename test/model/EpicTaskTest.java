@@ -15,7 +15,7 @@ class EpicTaskTest {
     @BeforeAll
     static void setUp() {
         epicTask = new EpicTask(1, "EpicName", "EpicDescription");
-        subTask = new SubTask(2, "SubName", "SubDescription",TaskStatus.NEW, epicTask.getId());
+        subTask = new SubTask(2, "SubName", "SubDescription", TaskStatus.NEW, epicTask.getId());
 
     }
 

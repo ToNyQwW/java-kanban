@@ -11,7 +11,7 @@ class TaskTest {
 
     @BeforeAll
     static void setUp() {
-       task = new Task(153, "Name", "Description", TaskStatus.NEW);
+        task = new Task(153, "Name", "Description", TaskStatus.NEW);
     }
 
     @Test

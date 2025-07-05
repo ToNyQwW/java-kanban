@@ -1,32 +1,80 @@
 package service;
 
 import model.Task;
+import service.historyModel.Node;
 import service.interfaces.HistoryManager;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    public static final int MAX_SIZE_HISTORY = 10;
-
-    private final List<Task> viewedTasksHistory;
-
+    private final Map<Integer, Node<Task>> viewedTasksHistory;
+    private Node<Task> head;
+    private Node<Task> tail;
 
     public InMemoryHistoryManager() {
-        viewedTasksHistory = new LinkedList<>();
+        viewedTasksHistory = new HashMap<>();
     }
 
     @Override
     public void add(Task task) {
-        if (viewedTasksHistory.size() >= MAX_SIZE_HISTORY) {
-            viewedTasksHistory.removeFirst();
+        Node<Task> node;
+        if (viewedTasksHistory.containsKey(task.getId())) {
+            node = viewedTasksHistory.get(task.getId());
+            removeNode(node);
+        } else {
+            node = new Node<>(task);
+            viewedTasksHistory.put(task.getId(), node);
         }
-        viewedTasksHistory.addLast(task);
+        linkLast(node);
+    }
+
+    @Override
+    public boolean remove(int id) {
+        if (viewedTasksHistory.containsKey(id)) {
+            removeNode(viewedTasksHistory.get(id));
+            viewedTasksHistory.remove(id);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public List<Task> getHistory() {
-        return List.copyOf(viewedTasksHistory);
+        List<Task> history = new ArrayList<>();
+        Node<Task> node = head;
+        while (node != null) {
+            history.add(node.getTask());
+            node = node.getNext();
+        }
+        return history;
+    }
+
+    private void linkLast(Node<Task> node) {
+        if (head == null) {
+            head = node;
+        } else {
+            tail.setNext(node);
+            node.setPrev(tail);
+            node.setNext(null);
+        }
+        tail = node;
+    }
+
+    private void removeNode(Node<Task> node) {
+        if (node == head) {
+            head = node.getNext();
+            if (head != null) {
+                head.setPrev(null);
+            }
+        } else if (node == tail) {
+            tail = node.getPrev();
+            if (tail != null) {
+                tail.setNext(null);
+            }
+        } else {
+            node.getPrev().setNext(node.getNext());
+            node.getNext().setPrev(node.getPrev());
+        }
     }
 }
