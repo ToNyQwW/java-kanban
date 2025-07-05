@@ -3,9 +3,7 @@ package service;
 import model.*;
 import org.junit.jupiter.api.*;
 import service.interfaces.TaskManager;
-import utill.Managers;
-
-import java.util.List;
+import util.Managers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -129,22 +127,19 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkGetHistoryWith12TaskInHistory() {
-        for (int i = 0; i < 4; i++) {
-            taskManager.getTask(task.getId());
-            taskManager.getSubTask(subTask.getId());
-            taskManager.getEpicTask(epicTask.getId());
-        }
-        List<Task> history = taskManager.getHistory();
-        assertEquals(InMemoryHistoryManager.MAX_SIZE_HISTORY, history.size());
-        assertEquals(epicTask, history.getFirst());
-    }
-
-    @Test
     void IfGetTaskReturnNullDontAddInHistory() {
         taskManager.getTask(10000);
         taskManager.getSubTask(20000);
         taskManager.getEpicTask(30000);
         assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    void ShouldRemoveSubTasksInHistoryWhenRemoveEpic() {
+        taskManager.getSubTask(subTask.getId());
+        taskManager.getEpicTask(epicTask.getId());
+
+        taskManager.removeEpicTask(epicTask.getId());
+        assertEquals(0, taskManager.getSubTasksList().size());
     }
 }

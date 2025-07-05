@@ -1,56 +1,67 @@
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
 import service.interfaces.TaskManager;
-import utill.Managers;
+import util.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
+        // Дополнительное задание. Реализуем пользовательский сценарий
 
+        // 1. Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
         TaskManager taskManager = Managers.getDefault();
-
-        // проверка taskManager(по условиям из практикума)
-
-        Task task1 = new Task("Task1", " ", TaskStatus.IN_PROGRESS);
-        Task task2 = new Task("Task2", " ");
+        Task task1 = new Task("Task1", "");
+        Task task2 = new Task("Task2", "");
         taskManager.addTask(task1);
         taskManager.addTask(task2);
-
-        EpicTask epicTask1 = new EpicTask("epicTask1", " ");
+        EpicTask epicTask1 = new EpicTask("EpicTask1", "");
         taskManager.addEpicTask(epicTask1);
-        SubTask subTask1 = new SubTask("subTask1", " ", TaskStatus.IN_PROGRESS, epicTask1.getId());
-        SubTask subTask2 = new SubTask("subTask2", " ", TaskStatus.DONE, epicTask1.getId());
+        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", epicTask1.getId());
+        SubTask subTask2 = new SubTask("subTask2", "from epicTask1", epicTask1.getId());
+        SubTask subTask3 = new SubTask("subTask3", "from epicTask1", epicTask1.getId());
         taskManager.addSubTask(subTask1);
         taskManager.addSubTask(subTask2);
-
-        EpicTask epicTask2 = new EpicTask("epicTask2", " ");
-        taskManager.addEpicTask(epicTask2);
-        SubTask subTask3 = new SubTask("subTask3", " ", epicTask2.getId());
         taskManager.addSubTask(subTask3);
+        EpicTask epicTask2 = new EpicTask("EpicTask2", "");
+        taskManager.addEpicTask(epicTask2);
 
-        System.out.println(taskManager.getEpicTasksList());
-        System.out.println(taskManager.getSubTasksList());
-        System.out.println(taskManager.getTasksList());
+        //2. Запросите созданные задачи несколько раз в разном порядке.
+        //3. После каждого запроса выведите историю и убедитесь, что в ней нет повторов.
+        taskManager.getTask(task2.getId());
+        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
+        taskManager.getTask(task2.getId());
+        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
+        taskManager.getEpicTask(epicTask2.getId());
+        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
+        taskManager.getEpicTask(epicTask2.getId());
+        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
+        taskManager.getTask(task2.getId());
+        System.out.println("В истории должно быть - epicTask2 -> Task2\n" + taskManager.getHistory());
+        taskManager.getSubTask(subTask3.getId());
+        System.out.println("В истории должно быть - epicTask2 -> Task2 -> subTask3\n" + taskManager.getHistory());
+        taskManager.getEpicTask(epicTask2.getId());
+        System.out.println("В истории должно быть - Task2 -> SubTask3 -> epicTask2\n" + taskManager.getHistory());
+        taskManager.getSubTask(subTask3.getId());
+        System.out.println("В истории должно быть - Task2 -> epicTask2 -> SubTask3\n" + taskManager.getHistory());
 
-        taskManager.updateTask(new Task(task2.getId(), task2.getName(), task2.getDescription(), TaskStatus.DONE));
-
-        taskManager.updateSubTask(new SubTask(subTask1.getId(), subTask1.getName(),
-                subTask1.getDescription(), TaskStatus.DONE, epicTask1.getId()));
-
-        taskManager.updateSubTask(new SubTask(subTask3.getId(), subTask3.getName(),
-                subTask3.getDescription(), TaskStatus.IN_PROGRESS, epicTask2.getId()));
-
-        System.out.println();
-        System.out.println(taskManager.getEpicTasksList());
-        System.out.println(taskManager.getSubTasksList());
-        System.out.println(taskManager.getTasksList());
-
-        taskManager.removeEpicTask(epicTask1.getId());
-        taskManager.removeTask(task1.getId());
+        //4. Удалите задачу, которая есть в истории, и проверьте, что при печати она не будет выводиться.
         taskManager.removeSubTask(subTask3.getId());
+        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
+        taskManager.removeEpicTask(epicTask2.getId());
+        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
+        taskManager.removeTask(task2.getId());
+        System.out.println("В истории должно быть пусто\n" + taskManager.getHistory());
 
-        System.out.println();
-        System.out.println(taskManager.getEpicTasksList());
-        System.out.println(taskManager.getSubTasksList());
-        System.out.println(taskManager.getTasksList());
+        //5 Удалите эпик с тремя подзадачами и убедитесь, что из истории удалился как сам эпик, так и все его подзадачи.
+        taskManager.getEpicTask(epicTask1.getId());
+        System.out.println("В истории должно быть - epicTask1\n" + taskManager.getHistory());
+        taskManager.addSubTask(subTask3); // ранее удалили, добавляем заново
+        taskManager.getSubTask(subTask1.getId());
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.getSubTask(subTask3.getId());
+        System.out.println("В истории должно быть - epicTask1 и все его подзадачи\n" + taskManager.getHistory());
+        taskManager.removeEpicTask(epicTask1.getId());
+        System.out.println("В истории должно быть пусто\n" + taskManager.getHistory());
     }
 }
