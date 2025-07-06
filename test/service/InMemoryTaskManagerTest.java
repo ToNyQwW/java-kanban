@@ -142,4 +142,33 @@ class InMemoryTaskManagerTest {
         taskManager.removeEpicTask(epicTask.getId());
         assertEquals(0, taskManager.getSubTasksList().size());
     }
+
+    @Test
+    void ShouldRemovedTasksFromHistoryWhenClearMaps(){
+
+        Task task2 = new Task("TestName", "");
+        taskManager.addTask(task2);
+
+        EpicTask epicTask2 = new EpicTask("TestName", "");
+        taskManager.addEpicTask(epicTask2);
+
+        SubTask subTask2 = new SubTask("TestName", "", epicTask.getId());
+        taskManager.addSubTask(subTask2);
+
+        taskManager.getTask(task.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.clearTasksMap();
+        assertEquals(0, taskManager.getTasksList().size());
+
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.clearSubtasksMap();
+        assertEquals(0, taskManager.getHistory().size());
+
+        taskManager.getEpicTask(epicTask.getId());
+        taskManager.getEpicTask(epicTask2.getId());
+        taskManager.clearEpicTasksMap();
+        assertEquals(0, taskManager.getHistory().size());
+
+    }
 }
