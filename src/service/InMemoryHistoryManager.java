@@ -9,11 +9,15 @@ import java.util.*;
 public class InMemoryHistoryManager implements HistoryManager {
 
     private final Map<Integer, Node<Task>> viewedTasksHistory;
-    private Node<Task> head;
-    private Node<Task> tail;
+    private final Node<Task> head;
+    private final Node<Task> tail;
 
     public InMemoryHistoryManager() {
         viewedTasksHistory = new HashMap<>();
+        head = new Node<>(null);
+        tail = new Node<>(null);
+        head.setNext(tail);
+        tail.setPrev(head);
     }
 
     @Override
@@ -41,8 +45,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public List<Task> getHistory() {
         List<Task> history = new ArrayList<>();
-        Node<Task> node = head;
-        while (node != null) {
+        Node<Task> node = head.getNext();
+        while (node != tail) {
             history.add(node.getTask());
             node = node.getNext();
         }
@@ -50,30 +54,15 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void linkLast(Node<Task> node) {
-        if (head == null) {
-            head = node;
-        } else {
-            tail.setNext(node);
-            node.setPrev(tail);
-            node.setNext(null);
-        }
-        tail = node;
+        Node<Task> lastNode = tail.getPrev();
+        lastNode.setNext(node);
+        node.setPrev(lastNode);
+        node.setNext(tail);
+        tail.setPrev(node);
     }
 
     private void removeNode(Node<Task> node) {
-        if (node == head) {
-            head = node.getNext();
-            if (head != null) {
-                head.setPrev(null);
-            }
-        } else if (node == tail) {
-            tail = node.getPrev();
-            if (tail != null) {
-                tail.setNext(null);
-            }
-        } else {
-            node.getPrev().setNext(node.getNext());
-            node.getNext().setPrev(node.getPrev());
-        }
+        node.getPrev().setNext(node.getNext());
+        node.getNext().setPrev(node.getPrev());
     }
 }

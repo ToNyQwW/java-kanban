@@ -144,7 +144,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void ShouldRemovedTasksFromHistoryWhenClearMaps(){
+    void ShouldRemovedTasksFromHistoryWhenClearMaps() {
 
         Task task2 = new Task("TestName", "");
         taskManager.addTask(task2);
