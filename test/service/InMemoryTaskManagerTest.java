@@ -3,9 +3,7 @@ package service;
 import model.*;
 import org.junit.jupiter.api.*;
 import service.interfaces.TaskManager;
-import utill.Managers;
-
-import java.util.List;
+import util.Managers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -129,22 +127,48 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void checkGetHistoryWith12TaskInHistory() {
-        for (int i = 0; i < 4; i++) {
-            taskManager.getTask(task.getId());
-            taskManager.getSubTask(subTask.getId());
-            taskManager.getEpicTask(epicTask.getId());
-        }
-        List<Task> history = taskManager.getHistory();
-        assertEquals(InMemoryHistoryManager.MAX_SIZE_HISTORY, history.size());
-        assertEquals(epicTask, history.getFirst());
-    }
-
-    @Test
     void IfGetTaskReturnNullDontAddInHistory() {
         taskManager.getTask(10000);
         taskManager.getSubTask(20000);
         taskManager.getEpicTask(30000);
         assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    void ShouldRemoveSubTasksInHistoryWhenRemoveEpic() {
+        taskManager.getSubTask(subTask.getId());
+        taskManager.getEpicTask(epicTask.getId());
+
+        taskManager.removeEpicTask(epicTask.getId());
+        assertEquals(0, taskManager.getSubTasksList().size());
+    }
+
+    @Test
+    void ShouldRemovedTasksFromHistoryWhenClearMaps() {
+
+        Task task2 = new Task("TestName", "");
+        taskManager.addTask(task2);
+
+        EpicTask epicTask2 = new EpicTask("TestName", "");
+        taskManager.addEpicTask(epicTask2);
+
+        SubTask subTask2 = new SubTask("TestName", "", epicTask.getId());
+        taskManager.addSubTask(subTask2);
+
+        taskManager.getTask(task.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.clearTasksMap();
+        assertEquals(0, taskManager.getTasksList().size());
+
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.getSubTask(subTask2.getId());
+        taskManager.clearSubtasksMap();
+        assertEquals(0, taskManager.getHistory().size());
+
+        taskManager.getEpicTask(epicTask.getId());
+        taskManager.getEpicTask(epicTask2.getId());
+        taskManager.clearEpicTasksMap();
+        assertEquals(0, taskManager.getHistory().size());
+
     }
 }

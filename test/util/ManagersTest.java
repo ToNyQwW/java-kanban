@@ -1,4 +1,4 @@
-package utill;
+package util;
 
 import org.junit.jupiter.api.Test;
 import service.interfaces.HistoryManager;
