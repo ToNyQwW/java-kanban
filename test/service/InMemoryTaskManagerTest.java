@@ -37,7 +37,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void CheckGetLists() {
+    void checkGetLists() {
 
         assertEquals(1, taskManager.getTasksList().size());
         assertEquals(task, taskManager.getTasksList().getFirst());
@@ -127,7 +127,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void IfGetTaskReturnNullDontAddInHistory() {
+    void ifGetTaskReturnNullDontAddInHistory() {
         taskManager.getTask(10000);
         taskManager.getSubTask(20000);
         taskManager.getEpicTask(30000);
@@ -135,7 +135,7 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void ShouldRemoveSubTasksInHistoryWhenRemoveEpic() {
+    void shouldRemoveSubTasksInHistoryWhenRemoveEpic() {
         taskManager.getSubTask(subTask.getId());
         taskManager.getEpicTask(epicTask.getId());
 
@@ -144,7 +144,18 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    void ShouldRemovedTasksFromHistoryWhenClearMaps() {
+    void shouldRemovedSubTasksFromHistoryWhenClearEpicMap() {
+        SubTask subTask2 = new SubTask("TestName", "", epicTask.getId());
+        taskManager.addSubTask(subTask2);
+        taskManager.getSubTask(subTask.getId());
+        taskManager.getSubTask(subTask2.getId());
+        assertEquals(2, taskManager.getHistory().size());
+        taskManager.clearEpicTasksMap();
+        assertEquals(0, taskManager.getHistory().size());
+    }
+
+    @Test
+    void shouldRemovedTasksFromHistoryWhenClearMaps() {
 
         Task task2 = new Task("TestName", "");
         taskManager.addTask(task2);
