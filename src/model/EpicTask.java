@@ -24,4 +24,10 @@ public class EpicTask extends Task {
     public void put(SubTask subTasks) {
         subInEpic.put(subTasks.getId(), subTasks);
     }
+
+    @Override
+    public String toString() {
+        return String.format("%d,%s,%s,%s,%s,", getId(), TaskType.EPIC_TASK,
+                getName(), getDescription(), getStatus());
+    }
 }
