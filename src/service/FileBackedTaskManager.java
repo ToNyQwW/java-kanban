@@ -1,8 +1,14 @@
 package service;
 
 import model.*;
+import service.exceptions.ManagerSaveException;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -88,13 +94,26 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
-    private void save() {
-
+    private void save() throws ManagerSaveException {
+        try {
+            Files.writeString(saveFile, "id,type,name,description,status,epic\n", UTF_8, CREATE, TRUNCATE_EXISTING);
+            for (Task task : getTasksList()) {
+                Files.writeString(saveFile, this.toString(task) + "\n", UTF_8, APPEND);
+            }
+            for (EpicTask epicTask : getEpicTasksList()) {
+                Files.writeString(saveFile, this.toString(epicTask) + "\n", UTF_8, APPEND);
+            }
+            for (SubTask subTask : getSubTasksList()) {
+                Files.writeString(saveFile, this.toString(subTask) + "\n", UTF_8, APPEND);
+            }
+        } catch (IOException e) {
+            throw new ManagerSaveException("ManagerSaveException", e);
+        }
     }
 
-    public String toString(Task task){
+    public String toString(Task task) {
         String result;
-        if(task instanceof SubTask sub){
+        if (task instanceof SubTask sub) {
             result = String.format("%d,%s,%s,%s,%s,%d",
                     sub.getId(),
                     TaskType.SUB_TASK,
@@ -102,13 +121,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     sub.getDescription(),
                     sub.getStatus(),
                     sub.getEpicId());
-        }else if(task instanceof EpicTask epic){
+        } else if (task instanceof EpicTask epic) {
             result = String.format("%d,%s,%s,%s,,",
                     epic.getId(),
                     TaskType.EPIC_TASK,
                     epic.getName(),
                     epic.getDescription());
-        }else {
+        } else {
             result = String.format("%d,%s,%s,%s,%s,",
                     task.getId(),
                     TaskType.TASK,
@@ -133,4 +152,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         return result;
     }
+
+//    public static boolean FileBackedTaskManager(Path file) {
+//
+//    }
 }

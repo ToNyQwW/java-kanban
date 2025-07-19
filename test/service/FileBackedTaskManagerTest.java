@@ -3,14 +3,13 @@ package service;
 import model.EpicTask;
 import model.SubTask;
 import model.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,18 +17,15 @@ class FileBackedTaskManagerTest {
 
     private static FileBackedTaskManager fileBackedTaskManager;
     private static Path tempFile;
-    private Task task;
-    private SubTask subTask;
-    private EpicTask epicTask;
+    private static Task task;
+    private static SubTask subTask;
+    private static EpicTask epicTask;
 
     @BeforeAll
     static void setUp() throws IOException {
         tempFile = Files.createTempFile("test", ".txt");
         fileBackedTaskManager = new FileBackedTaskManager(tempFile);
-    }
 
-    @BeforeEach
-    void setUpEach() {
         task = new Task("Name", "Description");
         fileBackedTaskManager.addTask(task);
 
@@ -38,11 +34,6 @@ class FileBackedTaskManagerTest {
 
         subTask = new SubTask("Name", "Description", epicTask.getId());
         fileBackedTaskManager.addSubTask(subTask);
-    }
-
-    @AfterEach
-    void afterEach() {
-        fileBackedTaskManager = new FileBackedTaskManager(tempFile);
     }
 
     @Test
@@ -73,5 +64,14 @@ class FileBackedTaskManagerTest {
         Task epicTaskFromString = fileBackedTaskManager.fromString(testEpicTask);
         assertEquals(epicTask, epicTaskFromString);
         assertEquals(testEpicTask, fileBackedTaskManager.toString(epicTask));
+    }
+
+    @Test
+    void testSave() throws IOException {
+        List<String> taskManagerFile = Files.readAllLines(tempFile);
+        assertEquals("id,type,name,description,status,epic", taskManagerFile.get(0));
+        assertEquals(fileBackedTaskManager.toString(task), taskManagerFile.get(1));
+        assertEquals(fileBackedTaskManager.toString(epicTask), taskManagerFile.get(2));
+        assertEquals(fileBackedTaskManager.toString(subTask), taskManagerFile.get(3));
     }
 }
