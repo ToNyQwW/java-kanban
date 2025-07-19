@@ -3,6 +3,7 @@ package service;
 import model.*;
 import service.exceptions.ManagerLoadException;
 import service.exceptions.ManagerSaveException;
+import service.interfaces.TaskManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +22,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveFile = saveFile;
     }
 
-    public static FileBackedTaskManager loadFromFile(Path file) {
+    public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadException {
         FileBackedTaskManager result = new FileBackedTaskManager(file);
         try {
             List<String> taskManagerFile = Files.readAllLines(file);
@@ -70,7 +71,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     sub.getStatus(),
                     sub.getEpicId());
         } else if (task instanceof EpicTask epic) {
-            result = String.format("%d,%s,%s,%s,,",
+            result = String.format("%d,%s,%s,%s, ,",
                     epic.getId(),
                     TaskType.EPIC_TASK,
                     epic.getName(),
@@ -176,5 +177,47 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public void clearEpicTasksMap() {
         super.clearEpicTasksMap();
         save();
+    }
+
+    //Дополнительное задание. Реализуем пользовательский сценарий
+    public static void main(String[] args) throws IOException {
+
+        //1.Заведите несколько разных задач, эпиков и подзадач.
+        Path tempFile = Files.createTempFile("test", ".txt");
+        TaskManager taskManager = new FileBackedTaskManager(tempFile);
+
+        Task task1 = new Task("Task1", "");
+        Task task2 = new Task("Task2", "");
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        EpicTask epicTask1 = new EpicTask("EpicTask1", "");
+        taskManager.addEpicTask(epicTask1);
+        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", epicTask1.getId());
+        SubTask subTask2 = new SubTask("subTask2", "from epicTask1", epicTask1.getId());
+        SubTask subTask3 = new SubTask("subTask3", "from epicTask1", epicTask1.getId());
+        taskManager.addSubTask(subTask1);
+        taskManager.addSubTask(subTask2);
+        taskManager.addSubTask(subTask3);
+        EpicTask epicTask2 = new EpicTask("EpicTask2", "");
+        taskManager.addEpicTask(epicTask2);
+
+        //2.Создайте новый FileBackedTaskManager-менеджер из этого же файла.
+        FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
+
+        //3.Проверьте, что все задачи, эпики, подзадачи, которые были в старом менеджере, есть в новом.
+        System.out.println("Вывод taskList из первого менеджера: ");
+        System.out.println(taskManager.getTasksList());
+        System.out.println("Вывод taskList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getTasksList());
+        System.out.println();
+        System.out.println("Вывод subList из первого менеджера: ");
+        System.out.println(taskManager.getSubTasksList());
+        System.out.println("Вывод subList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getSubTasksList());
+        System.out.println();
+        System.out.println("Вывод epicList из первого менеджера: ");
+        System.out.println(taskManager.getEpicTasksList());
+        System.out.println("Вывод epicList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getEpicTasksList());
     }
 }
