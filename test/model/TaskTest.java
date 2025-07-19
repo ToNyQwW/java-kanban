@@ -38,4 +38,10 @@ class TaskTest {
         Task testTask = new Task(153, "", "", TaskStatus.DONE);
         assertEquals(task, testTask);
     }
+
+    @Test
+    void testToString() {
+        String test = "Task{id=153, name='Name', description='Description', status=NEW}";
+        assertEquals(test, task.toString());
+    }
 }
