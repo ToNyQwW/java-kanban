@@ -36,10 +36,4 @@ class SubTaskTest {
         SubTask testSubTask = new SubTask(subTask.getId(), "", "", TaskStatus.DONE, epicTask.getId());
         assertEquals(subTask, testSubTask);
     }
-
-    @Test
-    void testToString() {
-        String test = "2,SUB_TASK,SubName,SubDescription,NEW,1";
-        assertEquals(test, subTask.toString());
-    }
 }

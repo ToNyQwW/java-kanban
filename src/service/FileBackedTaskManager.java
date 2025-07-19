@@ -1,8 +1,6 @@
 package service;
 
-import model.EpicTask;
-import model.SubTask;
-import model.Task;
+import model.*;
 
 import java.nio.file.Path;
 
@@ -92,5 +90,47 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
 
+    }
+
+    public String toString(Task task){
+        String result;
+        if(task instanceof SubTask sub){
+            result = String.format("%d,%s,%s,%s,%s,%d",
+                    sub.getId(),
+                    TaskType.SUB_TASK,
+                    sub.getName(),
+                    sub.getDescription(),
+                    sub.getStatus(),
+                    sub.getEpicId());
+        }else if(task instanceof EpicTask epic){
+            result = String.format("%d,%s,%s,%s,,",
+                    epic.getId(),
+                    TaskType.EPIC_TASK,
+                    epic.getName(),
+                    epic.getDescription());
+        }else {
+            result = String.format("%d,%s,%s,%s,%s,",
+                    task.getId(),
+                    TaskType.TASK,
+                    task.getName(),
+                    task.getDescription(),
+                    task.getStatus());
+        }
+        return result;
+    }
+
+    public Task fromString(String value) {
+        String[] taskString = value.split(",");
+        Task result = null;
+        switch (TaskType.valueOf(taskString[1])) {
+            case TASK -> result = new Task(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
+                    TaskStatus.valueOf(taskString[4]));
+
+            case SUB_TASK -> result = new SubTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
+                    TaskStatus.valueOf(taskString[4]), Integer.parseInt(taskString[5]));
+
+            case EPIC_TASK -> result = new EpicTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3]);
+        }
+        return result;
     }
 }
