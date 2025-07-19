@@ -74,4 +74,12 @@ class FileBackedTaskManagerTest {
         assertEquals(fileBackedTaskManager.toString(epicTask), taskManagerFile.get(2));
         assertEquals(fileBackedTaskManager.toString(subTask), taskManagerFile.get(3));
     }
+
+    @Test
+    void testLoadFromFile(){
+        FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
+        assertEquals(loadedTaskManager.getTasksList(), fileBackedTaskManager.getTasksList());
+        assertEquals(loadedTaskManager.getSubTasksList(), fileBackedTaskManager.getSubTasksList());
+        assertEquals(loadedTaskManager.getEpicTasksList(), fileBackedTaskManager.getEpicTasksList());
+    }
 }
