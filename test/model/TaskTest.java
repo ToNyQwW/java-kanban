@@ -41,7 +41,7 @@ class TaskTest {
 
     @Test
     void testToString() {
-        String test = "153,TASK,Name,Description,NEW,";
+        String test = "Task{id=153, name='Name', description='Description', status=NEW}";
         assertEquals(test, task.toString());
     }
 }
