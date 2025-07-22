@@ -16,12 +16,20 @@ public class EpicTask extends Task {
         super(-1, name, description, TaskStatus.NEW);
     }
 
-
     public Map<Integer, SubTask> getSubInEpic() {
         return subInEpic;
     }
 
     public void put(SubTask subTasks) {
         subInEpic.put(subTasks.getId(), subTasks);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%d,%s,%s,%s, ,",
+                getId(),
+                TaskType.EPIC_TASK,
+                getName(),
+                getDescription());
     }
 }
