@@ -3,15 +3,13 @@ package service;
 import model.*;
 import service.exceptions.ManagerLoadException;
 import service.exceptions.ManagerSaveException;
-import service.interfaces.TaskManager;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.*;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -24,8 +22,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadException {
         FileBackedTaskManager result = new FileBackedTaskManager(file);
-        try {
-            List<String> taskManagerFile = Files.readAllLines(file);
+        try (BufferedReader reader = new BufferedReader(new FileReader(file.toFile()))) {
+            List<String> taskManagerFile = new ArrayList<>();
+            while (reader.ready()) {
+                taskManagerFile.add(reader.readLine());
+            }
             if (taskManagerFile.isEmpty() || taskManagerFile.size() == 1) {
                 return result;
             }
@@ -59,16 +60,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private void save() throws ManagerSaveException {
-        try {
-            Files.writeString(saveFile, "id,type,name,description,status,epic\n", UTF_8, CREATE, TRUNCATE_EXISTING);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile.toFile(), UTF_8))) {
+            writer.write("id,type,name,description,status,epic\n");
             for (Task task : getTasksList()) {
-                Files.writeString(saveFile, task + "\n", UTF_8, APPEND);
+                writer.write(task + "\n");
             }
             for (EpicTask epicTask : getEpicTasksList()) {
-                Files.writeString(saveFile, epicTask + "\n", UTF_8, APPEND);
+                writer.write(epicTask + "\n");
             }
             for (SubTask subTask : getSubTasksList()) {
-                Files.writeString(saveFile, subTask + "\n", UTF_8, APPEND);
+                writer.write(subTask + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("ManagerSaveException", e);

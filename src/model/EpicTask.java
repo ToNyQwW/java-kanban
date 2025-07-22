@@ -25,7 +25,7 @@ public class EpicTask extends Task {
     }
 
     @Override
-    public TaskType getTaskType(){
+    public TaskType getTaskType() {
         return TaskType.EPIC_TASK;
     }
 
