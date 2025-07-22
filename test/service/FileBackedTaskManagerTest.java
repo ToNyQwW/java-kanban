@@ -38,42 +38,30 @@ class FileBackedTaskManagerTest {
     }
 
     @Test
-    void testToString() {
-        String testTask = "1,TASK,Name,Description,NEW,";
-        assertEquals(testTask, fileBackedTaskManager.toString(task));
-
-        String testSubTask = "3,SUB_TASK,Name,Description,NEW,2";
-        assertEquals(testSubTask, fileBackedTaskManager.toString(subTask));
-
-        String testEpicTask = "2,EPIC_TASK,Name,Description, ,";
-        assertEquals(testEpicTask, fileBackedTaskManager.toString(epicTask));
-    }
-
-    @Test
     void testFromString() {
         String testTask = "1,TASK,Name,Description,NEW,";
         Task taskFromString = fileBackedTaskManager.fromString(testTask);
         assertEquals(task, taskFromString);
-        assertEquals(testTask, fileBackedTaskManager.toString(task));
+        assertEquals(testTask, task.toString());
 
         String testSubTask = "3,SUB_TASK,Name,Description,NEW,2";
         Task subTaskFromString = fileBackedTaskManager.fromString(testSubTask);
         assertEquals(subTask, subTaskFromString);
-        assertEquals(testSubTask, fileBackedTaskManager.toString(subTask));
+        assertEquals(testSubTask, subTask.toString());
 
         String testEpicTask = "2,EPIC_TASK,Name,Description, ,";
         Task epicTaskFromString = fileBackedTaskManager.fromString(testEpicTask);
         assertEquals(epicTask, epicTaskFromString);
-        assertEquals(testEpicTask, fileBackedTaskManager.toString(epicTask));
+        assertEquals(testEpicTask, epicTask.toString());
     }
 
     @Test
     void testSave() throws IOException {
         List<String> taskManagerFile = Files.readAllLines(tempFile);
         assertEquals("id,type,name,description,status,epic", taskManagerFile.get(0));
-        assertEquals(fileBackedTaskManager.toString(task), taskManagerFile.get(1));
-        assertEquals(fileBackedTaskManager.toString(epicTask), taskManagerFile.get(2));
-        assertEquals(fileBackedTaskManager.toString(subTask), taskManagerFile.get(3));
+        assertEquals(task.toString(), taskManagerFile.get(1));
+        assertEquals(epicTask.toString(), taskManagerFile.get(2));
+        assertEquals(subTask.toString(), taskManagerFile.get(3));
     }
 
     @Test

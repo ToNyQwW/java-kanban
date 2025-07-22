@@ -60,44 +60,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return result;
     }
 
-    public String toString(Task task) {
-        String result;
-        if (task instanceof SubTask sub) {
-            result = String.format("%d,%s,%s,%s,%s,%d",
-                    sub.getId(),
-                    TaskType.SUB_TASK,
-                    sub.getName(),
-                    sub.getDescription(),
-                    sub.getStatus(),
-                    sub.getEpicId());
-        } else if (task instanceof EpicTask epic) {
-            result = String.format("%d,%s,%s,%s, ,",
-                    epic.getId(),
-                    TaskType.EPIC_TASK,
-                    epic.getName(),
-                    epic.getDescription());
-        } else {
-            result = String.format("%d,%s,%s,%s,%s,",
-                    task.getId(),
-                    TaskType.TASK,
-                    task.getName(),
-                    task.getDescription(),
-                    task.getStatus());
-        }
-        return result;
-    }
-
     private void save() throws ManagerSaveException {
         try {
             Files.writeString(saveFile, "id,type,name,description,status,epic\n", UTF_8, CREATE, TRUNCATE_EXISTING);
             for (Task task : getTasksList()) {
-                Files.writeString(saveFile, this.toString(task) + "\n", UTF_8, APPEND);
+                Files.writeString(saveFile, task + "\n", UTF_8, APPEND);
             }
             for (EpicTask epicTask : getEpicTasksList()) {
-                Files.writeString(saveFile, this.toString(epicTask) + "\n", UTF_8, APPEND);
+                Files.writeString(saveFile, epicTask + "\n", UTF_8, APPEND);
             }
             for (SubTask subTask : getSubTasksList()) {
-                Files.writeString(saveFile, this.toString(subTask) + "\n", UTF_8, APPEND);
+                Files.writeString(saveFile, subTask + "\n", UTF_8, APPEND);
             }
         } catch (IOException e) {
             throw new ManagerSaveException("ManagerSaveException", e);
