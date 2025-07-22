@@ -41,4 +41,10 @@ class EpicTaskTest {
         EpicTask testTask = new EpicTask(epicTask.getId(), "", "");
         assertEquals(epicTask, testTask);
     }
+
+    @Test
+    void testToString() {
+        String test = "1,EPIC_TASK,EpicName,EpicDescription, ,";
+        assertEquals(test, epicTask.toString());
+    }
 }

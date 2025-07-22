@@ -1,16 +1,23 @@
 import model.EpicTask;
 import model.SubTask;
 import model.Task;
+import service.FileBackedTaskManager;
 import service.interfaces.TaskManager;
 import util.Managers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class Main {
 
-    public static void main(String[] args) {
-        // Дополнительное задание. Реализуем пользовательский сценарий
+    //Дополнительное задание. Реализуем пользовательский сценарий
+    public static void main(String[] args) throws IOException {
 
-        // 1. Создайте две задачи, эпик с тремя подзадачами и эпик без подзадач.
-        TaskManager taskManager = Managers.getDefault();
+        //1.Заведите несколько разных задач, эпиков и подзадач.
+        Path tempFile = Files.createTempFile("ManagerTask", ".txt");
+        TaskManager taskManager = Managers.getDefault(tempFile);
+
         Task task1 = new Task("Task1", "");
         Task task2 = new Task("Task2", "");
         taskManager.addTask(task1);
@@ -26,42 +33,23 @@ public class Main {
         EpicTask epicTask2 = new EpicTask("EpicTask2", "");
         taskManager.addEpicTask(epicTask2);
 
-        //2. Запросите созданные задачи несколько раз в разном порядке.
-        //3. После каждого запроса выведите историю и убедитесь, что в ней нет повторов.
-        taskManager.getTask(task2.getId());
-        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
-        taskManager.getTask(task2.getId());
-        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
-        taskManager.getEpicTask(epicTask2.getId());
-        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
-        taskManager.getEpicTask(epicTask2.getId());
-        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
-        taskManager.getTask(task2.getId());
-        System.out.println("В истории должно быть - epicTask2 -> Task2\n" + taskManager.getHistory());
-        taskManager.getSubTask(subTask3.getId());
-        System.out.println("В истории должно быть - epicTask2 -> Task2 -> subTask3\n" + taskManager.getHistory());
-        taskManager.getEpicTask(epicTask2.getId());
-        System.out.println("В истории должно быть - Task2 -> SubTask3 -> epicTask2\n" + taskManager.getHistory());
-        taskManager.getSubTask(subTask3.getId());
-        System.out.println("В истории должно быть - Task2 -> epicTask2 -> SubTask3\n" + taskManager.getHistory());
+        //2.Создайте новый FileBackedTaskManager-менеджер из этого же файла.
+        FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(tempFile);
 
-        //4. Удалите задачу, которая есть в истории, и проверьте, что при печати она не будет выводиться.
-        taskManager.removeSubTask(subTask3.getId());
-        System.out.println("В истории должно быть - Task2 -> epicTask2\n" + taskManager.getHistory());
-        taskManager.removeEpicTask(epicTask2.getId());
-        System.out.println("В истории должно быть - Task2\n" + taskManager.getHistory());
-        taskManager.removeTask(task2.getId());
-        System.out.println("В истории должно быть пусто\n" + taskManager.getHistory());
-
-        //5 Удалите эпик с тремя подзадачами и убедитесь, что из истории удалился как сам эпик, так и все его подзадачи.
-        taskManager.getEpicTask(epicTask1.getId());
-        System.out.println("В истории должно быть - epicTask1\n" + taskManager.getHistory());
-        taskManager.addSubTask(subTask3); // ранее удалили, добавляем заново
-        taskManager.getSubTask(subTask1.getId());
-        taskManager.getSubTask(subTask2.getId());
-        taskManager.getSubTask(subTask3.getId());
-        System.out.println("В истории должно быть - epicTask1 и все его подзадачи\n" + taskManager.getHistory());
-        taskManager.removeEpicTask(epicTask1.getId());
-        System.out.println("В истории должно быть пусто\n" + taskManager.getHistory());
+        //3.Проверьте, что все задачи, эпики, подзадачи, которые были в старом менеджере, есть в новом.
+        System.out.println("Вывод taskList из первого менеджера: ");
+        System.out.println(taskManager.getTasksList());
+        System.out.println("Вывод taskList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getTasksList());
+        System.out.println();
+        System.out.println("Вывод subList из первого менеджера: ");
+        System.out.println(taskManager.getSubTasksList());
+        System.out.println("Вывод subList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getSubTasksList());
+        System.out.println();
+        System.out.println("Вывод epicList из первого менеджера: ");
+        System.out.println(taskManager.getEpicTasksList());
+        System.out.println("Вывод epicList из второго менеджера: ");
+        System.out.println(loadedTaskManager.getEpicTasksList());
     }
 }
