@@ -25,6 +25,11 @@ public class EpicTask extends Task {
     }
 
     @Override
+    public TaskType getTaskType(){
+        return TaskType.EPIC_TASK;
+    }
+
+    @Override
     public String toString() {
         return String.format("%d,%s,%s,%s, ,",
                 getId(),
