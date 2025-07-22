@@ -31,12 +31,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
             for (int i = 1; i < taskManagerFile.size(); i++) {
                 Task task = result.fromString(taskManagerFile.get(i));
-                if (task instanceof EpicTask epic) {
-                    result.addEpicTask(epic);
-                } else if (task instanceof SubTask sub) {
-                    result.addSubTask(sub);
-                } else {
-                    result.addTask(task);
+                switch (task.getTaskType()) {
+                    case TASK -> result.addTask(task);
+                    case SUB_TASK ->  result.addSubTask((SubTask) task);
+                    case EPIC_TASK ->   result.addEpicTask((EpicTask) task);
                 }
             }
         } catch (IOException e) {

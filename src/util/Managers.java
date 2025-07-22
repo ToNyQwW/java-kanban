@@ -1,9 +1,13 @@
 package util;
 
+import service.FileBackedTaskManager;
 import service.InMemoryHistoryManager;
-import service.InMemoryTaskManager;
 import service.interfaces.HistoryManager;
 import service.interfaces.TaskManager;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public final class Managers {
 
@@ -12,7 +16,12 @@ public final class Managers {
     }
 
     public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
+        try {
+            Path tempFile = Files.createTempFile("TaskManager", ".txt");
+            return new FileBackedTaskManager(tempFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static HistoryManager getDefaultHistory() {
