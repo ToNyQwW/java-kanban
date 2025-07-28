@@ -24,14 +24,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         FileBackedTaskManager result = new FileBackedTaskManager(file);
         try (BufferedReader reader = new BufferedReader(new FileReader(file.toFile()))) {
             List<String> taskManagerFile = new ArrayList<>();
-            while (reader.ready()) {
-                taskManagerFile.add(reader.readLine());
-            }
-            if (taskManagerFile.isEmpty() || taskManagerFile.size() == 1) {
+            reader.readLine(); // пропускаем первую строку с полями задач
+            reader.lines().forEach(taskManagerFile::add);
+            if (taskManagerFile.isEmpty()) {
                 return result;
             }
-            for (int i = 1; i < taskManagerFile.size(); i++) {
-                Task task = result.fromString(taskManagerFile.get(i));
+            for (String taskToAdd : taskManagerFile) {
+                Task task = result.fromString(taskToAdd);
                 switch (task.getTaskType()) {
                     case TASK -> result.addTask(task);
                     case SUB_TASK -> result.addSubTask((SubTask) task);
