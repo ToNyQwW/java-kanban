@@ -60,6 +60,9 @@ public class Task {
         this.description = description;
     }
 
+    public TaskType getTaskType() {
+        return TaskType.TASK;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -75,11 +78,11 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", status=" + status +
-                '}';
+        return String.format("%d,%s,%s,%s,%s,",
+                id,
+                TaskType.TASK,
+                name,
+                description,
+                status);
     }
 }
