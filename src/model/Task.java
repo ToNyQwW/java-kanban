@@ -6,6 +6,8 @@ import java.util.Objects;
 
 public class Task {
 
+    public static final int DEFAULT_ID = -1;
+
     private int id;
     private String name;
     private String description;
@@ -29,11 +31,11 @@ public class Task {
     }
 
     public Task(String name, String description, TaskStatus status, LocalDateTime startTime, Duration duration) {
-        this(-1, name, description, status, startTime, duration);
+        this(DEFAULT_ID, name, description, status, startTime, duration);
     }
 
     public Task(String name, String description, TaskStatus status) {
-        this(-1, name, description, status);
+        this(DEFAULT_ID, name, description, status, null, Duration.ZERO);
     }
 
     public int getId() {
@@ -109,17 +111,23 @@ public class Task {
         return Objects.hash(id);
     }
 
+    public String startTimeToString() {
+        return startTime != null ? startTime.toString() : " ";
+    }
+
+    public Long durationToLong() {
+        return duration.toMinutes();
+    }
+
     @Override
     public String toString() {
-        String startTimeToString = startTime != null ? startTime.toString() : " ";
-        long durationToString = duration != Duration.ZERO ? duration.toMinutes() : 0;
         return String.format("%d,%s,%s,%s,%s,%s,%d",
                 id,
-                TaskType.TASK,
+                getTaskType(),
                 name,
                 description,
                 status,
-                startTimeToString,
-                durationToString);
+                startTimeToString(),
+                durationToLong());
     }
 }
