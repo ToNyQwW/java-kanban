@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTaskTest {
@@ -15,7 +16,7 @@ class EpicTaskTest {
     @BeforeAll
     static void setUp() {
         epicTask = new EpicTask(1, "EpicName", "EpicDescription");
-        subTask = new SubTask(2, "SubName", "SubDescription", TaskStatus.NEW, epicTask.getId());
+        subTask = new SubTask(2, "SubName", "SubDescription", NEW, epicTask.getId());
 
     }
 
@@ -32,7 +33,7 @@ class EpicTaskTest {
         assertEquals(1, epicTask.getId());
         assertEquals("EpicName", epicTask.getName());
         assertEquals("EpicDescription", epicTask.getDescription());
-        assertEquals(TaskStatus.NEW, epicTask.getStatus());
+        assertEquals(NEW, epicTask.getStatus());
     }
 
     @Test
@@ -44,7 +45,7 @@ class EpicTaskTest {
 
     @Test
     void testToString() {
-        String test = "1,EPIC_TASK,EpicName,EpicDescription, ,";
+        String test = "1,EPIC_TASK,EpicName,EpicDescription,NEW, ,0";
         assertEquals(test, epicTask.toString());
     }
 }

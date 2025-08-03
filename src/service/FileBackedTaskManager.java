@@ -51,7 +51,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     TaskStatus.valueOf(taskString[4]));
 
             case SUB_TASK -> result = new SubTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
-                    TaskStatus.valueOf(taskString[4]), Integer.parseInt(taskString[5]));
+                    TaskStatus.valueOf(taskString[4]), Integer.parseInt(taskString[7]));
 
             case EPIC_TASK -> result = new EpicTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3]);
         }

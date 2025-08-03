@@ -8,6 +8,7 @@ import util.Managers;
 
 import java.util.List;
 
+import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
@@ -27,23 +28,23 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void addTaskToViewedTasksHistory() {
-        historyManager.add(new Task("Name", "Description"));
+        historyManager.add(new Task("Name", "Description", NEW));
         List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
     }
 
     @Test
     void add3TypesTasksToViewedTasksHistory() {
-        historyManager.add(new Task(1, "Name", "Description"));
+        historyManager.add(new Task(1, "Name", "Description", NEW));
         historyManager.add(new EpicTask(2, "Name", "Description"));
-        historyManager.add(new SubTask("Name", "Description", 2));
+        historyManager.add(new SubTask("Name", "Description", NEW, 2));
         List<Task> history = historyManager.getHistory();
         assertEquals(3, history.size());
     }
 
     @Test
     void shouldNotAddDuplicateTask() {
-        Task task1 = new Task(1, "Name", "Description");
+        Task task1 = new Task(1, "Name", "Description", NEW);
         historyManager.add(task1);
         historyManager.add(task1);
         List<Task> history = historyManager.getHistory();
@@ -55,7 +56,7 @@ class InMemoryHistoryManagerTest {
         history = historyManager.getHistory();
         assertEquals(2, history.size());
 
-        SubTask subTask1 = new SubTask("Name", "Description", 2);
+        SubTask subTask1 = new SubTask("Name", "Description", NEW, 2);
         historyManager.add(subTask1);
         historyManager.add(subTask1);
         history = historyManager.getHistory();
@@ -65,11 +66,11 @@ class InMemoryHistoryManagerTest {
     @Test
     void shouldRemoveTaskFromHistory() {
 
-        Task task1 = new Task(1, "Task1", "");
+        Task task1 = new Task(1, "Task1", "Description", NEW);
         historyManager.add(task1);
-        EpicTask epicTask1 = new EpicTask(2, "EpicTask1", "");
+        EpicTask epicTask1 = new EpicTask(2, "EpicTask1", "Description");
         historyManager.add(epicTask1);
-        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", epicTask1.getId());
+        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", NEW, epicTask1.getId());
         historyManager.add(subTask1);
 
         assertEquals(3, historyManager.getHistory().size());

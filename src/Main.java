@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static model.TaskStatus.NEW;
+
 public class Main {
 
     //Дополнительное задание. Реализуем пользовательский сценарий
@@ -18,19 +20,19 @@ public class Main {
         Path tempFile = Files.createTempFile("ManagerTask", ".txt");
         TaskManager taskManager = Managers.getDefault(tempFile);
 
-        Task task1 = new Task("Task1", "");
-        Task task2 = new Task("Task2", "");
+        Task task1 = new Task("Task1", "Description", NEW);
+        Task task2 = new Task("Task2", "Description", NEW);
         taskManager.addTask(task1);
         taskManager.addTask(task2);
-        EpicTask epicTask1 = new EpicTask("EpicTask1", "");
+        EpicTask epicTask1 = new EpicTask("EpicTask1", "Description");
         taskManager.addEpicTask(epicTask1);
-        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", epicTask1.getId());
-        SubTask subTask2 = new SubTask("subTask2", "from epicTask1", epicTask1.getId());
-        SubTask subTask3 = new SubTask("subTask3", "from epicTask1", epicTask1.getId());
+        SubTask subTask1 = new SubTask("subTask1", "from epicTask1", NEW, epicTask1.getId());
+        SubTask subTask2 = new SubTask("subTask2", "from epicTask1", NEW, epicTask1.getId());
+        SubTask subTask3 = new SubTask("subTask3", "from epicTask1", NEW, epicTask1.getId());
         taskManager.addSubTask(subTask1);
         taskManager.addSubTask(subTask2);
         taskManager.addSubTask(subTask3);
-        EpicTask epicTask2 = new EpicTask("EpicTask2", "");
+        EpicTask epicTask2 = new EpicTask("EpicTask2", "Description");
         taskManager.addEpicTask(epicTask2);
 
         //2.Создайте новый FileBackedTaskManager-менеджер из этого же файла.

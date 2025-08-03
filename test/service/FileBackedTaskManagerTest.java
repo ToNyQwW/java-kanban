@@ -3,6 +3,7 @@ package service;
 import model.EpicTask;
 import model.SubTask;
 import model.Task;
+import model.TaskStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import service.interfaces.TaskManager;
@@ -12,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FileBackedTaskManagerTest {
@@ -27,29 +29,29 @@ class FileBackedTaskManagerTest {
         tempFile = Files.createTempFile("test", ".txt");
         fileBackedTaskManager = new FileBackedTaskManager(tempFile);
 
-        task = new Task("Name", "Description");
+        task = new Task("Name", "Description", NEW);
         fileBackedTaskManager.addTask(task);
 
         epicTask = new EpicTask("Name", "Description");
         fileBackedTaskManager.addEpicTask(epicTask);
 
-        subTask = new SubTask("Name", "Description", epicTask.getId());
+        subTask = new SubTask("Name", "Description", NEW, epicTask.getId());
         fileBackedTaskManager.addSubTask(subTask);
     }
 
     @Test
     void testFromString() {
-        String testTask = "1,TASK,Name,Description,NEW,";
+        String testTask = "1,TASK,Name,Description,NEW, ,0";
         Task taskFromString = fileBackedTaskManager.fromString(testTask);
         assertEquals(task, taskFromString);
         assertEquals(testTask, task.toString());
 
-        String testSubTask = "3,SUB_TASK,Name,Description,NEW,2";
+        String testSubTask = "3,SUB_TASK,Name,Description,NEW, ,0,2";
         Task subTaskFromString = fileBackedTaskManager.fromString(testSubTask);
         assertEquals(subTask, subTaskFromString);
         assertEquals(testSubTask, subTask.toString());
 
-        String testEpicTask = "2,EPIC_TASK,Name,Description, ,";
+        String testEpicTask = "2,EPIC_TASK,Name,Description,NEW, ,0";
         Task epicTaskFromString = fileBackedTaskManager.fromString(testEpicTask);
         assertEquals(epicTask, epicTaskFromString);
         assertEquals(testEpicTask, epicTask.toString());

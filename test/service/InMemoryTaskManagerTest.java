@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.interfaces.TaskManager;
 
+import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InMemoryTaskManagerTest {
@@ -26,13 +27,13 @@ class InMemoryTaskManagerTest {
 
     @BeforeEach
     void setUpEach() {
-        task = new Task("Name", "Description");
+        task = new Task("Name", "Description", NEW);
         taskManager.addTask(task);
 
         epicTask = new EpicTask("Name", "Description");
         taskManager.addEpicTask(epicTask);
 
-        subTask = new SubTask("Name", "Description", epicTask.getId());
+        subTask = new SubTask("Name", "Description", NEW, epicTask.getId());
         taskManager.addSubTask(subTask);
     }
 
@@ -66,12 +67,12 @@ class InMemoryTaskManagerTest {
     void removeSubtaskAndCheckIt() {
 
         EpicTask EpicFromSub = taskManager.getEpicTask(subTask.getEpicId());
-        assertEquals(TaskStatus.NEW, EpicFromSub.getStatus());
+        assertEquals(NEW, EpicFromSub.getStatus());
 
         taskManager.removeSubTask(subTask.getId());
         assertEquals(0, taskManager.getSubTasksList().size());
         assertEquals(0, epicTask.getSubInEpic().size());
-        assertEquals(TaskStatus.DONE, EpicFromSub.getStatus());
+        assertEquals(DONE, EpicFromSub.getStatus());
     }
 
     @Test
@@ -83,7 +84,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void updateTaskAndCheckIt() {
-        Task updatetask = new Task(task.getId(), "NewName", "NewDescription");
+        Task updatetask = new Task(task.getId(), "NewName", "NewDescription", NEW);
         taskManager.updateTask(updatetask);
 
         assertEquals(1, taskManager.getTasksList().size());
@@ -94,18 +95,18 @@ class InMemoryTaskManagerTest {
     @Test
     void updateSubTaskAndCheckIt() {
         SubTask updateSubTask = new SubTask(subTask.getId(), "NewName", "NewDescription",
-                TaskStatus.IN_PROGRESS, epicTask.getId());
+                IN_PROGRESS, epicTask.getId());
         taskManager.updateSubTask(updateSubTask);
 
         assertEquals(1, taskManager.getSubTasksList().size());
         assertEquals(updateSubTask, taskManager.getSubTasksList().getFirst());
-        assertEquals(TaskStatus.IN_PROGRESS, epicTask.getStatus());
+        assertEquals(IN_PROGRESS, epicTask.getStatus());
 
         updateSubTask = new SubTask(subTask.getId(), "NewName", "NewDescription",
-                TaskStatus.DONE, epicTask.getId());
+                DONE, epicTask.getId());
 
         taskManager.updateSubTask(updateSubTask);
-        assertEquals(TaskStatus.DONE, epicTask.getStatus());
+        assertEquals(DONE, epicTask.getStatus());
     }
 
     @Test
@@ -116,7 +117,7 @@ class InMemoryTaskManagerTest {
         assertEquals(1, taskManager.getEpicTasksList().size());
         assertEquals(updateEpicTask, taskManager.getEpicTasksList().getFirst());
 
-        assertEquals(TaskStatus.NEW, epicTask.getStatus());
+        assertEquals(NEW, epicTask.getStatus());
     }
 
     @Test
@@ -150,7 +151,7 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldRemovedSubTasksFromHistoryWhenClearEpicMap() {
-        SubTask subTask2 = new SubTask("TestName", "", epicTask.getId());
+        SubTask subTask2 = new SubTask("TestName", "Description", NEW, epicTask.getId());
         taskManager.addSubTask(subTask2);
         taskManager.getSubTask(subTask.getId());
         taskManager.getSubTask(subTask2.getId());
@@ -162,13 +163,13 @@ class InMemoryTaskManagerTest {
     @Test
     void shouldRemovedTasksFromHistoryWhenClearMaps() {
 
-        Task task2 = new Task("TestName", "");
+        Task task2 = new Task("TestName", "Description", NEW);
         taskManager.addTask(task2);
 
-        EpicTask epicTask2 = new EpicTask("TestName", "");
+        EpicTask epicTask2 = new EpicTask("TestName", "Description");
         taskManager.addEpicTask(epicTask2);
 
-        SubTask subTask2 = new SubTask("TestName", "", epicTask.getId());
+        SubTask subTask2 = new SubTask("TestName", "Description", NEW, epicTask.getId());
         taskManager.addSubTask(subTask2);
 
         taskManager.getTask(task.getId());
