@@ -3,6 +3,9 @@ package util;
 import model.*;
 import service.exceptions.ConvertToTaskException;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public final class ConverterToTask {
 
     private static final int ID_INDEX = 0;
@@ -24,18 +27,26 @@ public final class ConverterToTask {
         }
         try {
             String[] taskString = value.split(",");
-            Task result = null;
             int id = Integer.parseInt(taskString[ID_INDEX]);
-            TaskStatus taskStatus = TaskStatus.valueOf(taskString[STATUS_INDEX]);
-            switch (TaskType.valueOf(taskString[TYPE_INDEX])) {
-                case TASK -> result = new Task(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX], taskStatus);
+            TaskType type = TaskType.valueOf(taskString[TYPE_INDEX]);
+            String name = taskString[NAME_INDEX];
+            String description = taskString[DESCRIPTION_INDEX];
 
-                case SUB_TASK -> result = new SubTask(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX],
-                        taskStatus, Integer.parseInt(taskString[EPIC_ID_INDEX]));
-
-                case EPIC_TASK -> result = new EpicTask(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX]);
+            if (type == TaskType.EPIC_TASK) {
+                return new EpicTask(id, name, description);
+            } else {
+                TaskStatus status = TaskStatus.valueOf(taskString[STATUS_INDEX]);
+                LocalDateTime startTime = taskString[START_TIME_INDEX].equals(" ") ?
+                        null : LocalDateTime.parse(taskString[START_TIME_INDEX]);
+                Duration duration = taskString[DURATION_INDEX].equals("0") ?
+                        Duration.ZERO : Duration.ofMinutes(Long.parseLong(taskString[DURATION_INDEX]));
+                if (type == TaskType.TASK) {
+                    return new Task(id, name, description, status, startTime, duration);
+                } else {
+                    int epicId = Integer.parseInt(taskString[EPIC_ID_INDEX]);
+                    return new SubTask(id, name, description, status, epicId);
+                }
             }
-            return result;
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
             throw new ConvertToTaskException("string value have incorrect format", e);
         }

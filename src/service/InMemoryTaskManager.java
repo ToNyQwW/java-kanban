@@ -1,11 +1,18 @@
 package service;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
+import model.TaskStatus;
 import service.interfaces.HistoryManager;
 import service.interfaces.TaskManager;
 import util.Managers;
 
-import java.util.*;
+import java.time.Duration;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -107,6 +114,22 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    private void updateEpicTaskTime(EpicTask epicTask) {
+        if (epicTask.getSubInEpic().isEmpty()) {
+            return;
+        }
+
+        List<SubTask> sortedSubTasks = epicTask.getSubInEpic().values().stream()
+                .sorted(Comparator.comparing(Task::getStartTime)).toList();
+
+        epicTask.setStartTime(sortedSubTasks.getFirst().getStartTime());
+
+        epicTask.setEndTime(sortedSubTasks.getLast().getEndTime());
+
+        epicTask.setDuration(sortedSubTasks.stream()
+                .map(Task::getDuration)
+                .reduce(Duration.ZERO, Duration::plus));
+    }
 
     @Override
     public void removeTask(int id) {
