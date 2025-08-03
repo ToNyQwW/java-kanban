@@ -1,8 +1,11 @@
 package service;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
 import service.exceptions.ManagerLoadException;
 import service.exceptions.ManagerSaveException;
+import util.ConverterToTask;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -30,7 +33,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 return result;
             }
             for (String taskToAdd : taskManagerFile) {
-                Task task = result.fromString(taskToAdd);
+                Task task = ConverterToTask.fromString(taskToAdd);
                 switch (task.getTaskType()) {
                     case TASK -> result.addTask(task);
                     case SUB_TASK -> result.addSubTask((SubTask) task);
@@ -39,21 +42,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             throw new ManagerLoadException("ManagerLoadException", e);
-        }
-        return result;
-    }
-
-    public Task fromString(String value) {
-        String[] taskString = value.split(",");
-        Task result = null;
-        switch (TaskType.valueOf(taskString[1])) {
-            case TASK -> result = new Task(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
-                    TaskStatus.valueOf(taskString[4]));
-
-            case SUB_TASK -> result = new SubTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
-                    TaskStatus.valueOf(taskString[4]), Integer.parseInt(taskString[7]));
-
-            case EPIC_TASK -> result = new EpicTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3]);
         }
         return result;
     }
