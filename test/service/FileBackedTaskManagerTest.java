@@ -60,7 +60,7 @@ class FileBackedTaskManagerTest {
     @Test
     void testSave() throws IOException {
         List<String> taskManagerFile = Files.readAllLines(tempFile);
-        assertEquals("id,type,name,description,status,epic", taskManagerFile.get(0));
+        assertEquals("id,type,name,description,status,startTime,duration,epicId", taskManagerFile.get(0));
         assertEquals(task.toString(), taskManagerFile.get(1));
         assertEquals(epicTask.toString(), taskManagerFile.get(2));
         assertEquals(subTask.toString(), taskManagerFile.get(3));

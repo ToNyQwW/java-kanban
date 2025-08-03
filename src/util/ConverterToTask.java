@@ -1,24 +1,43 @@
 package util;
 
 import model.*;
+import service.exceptions.ConvertToTaskException;
 
 public final class ConverterToTask {
+
+    private static final int ID_INDEX = 0;
+    private static final int TYPE_INDEX = 1;
+    private static final int NAME_INDEX = 2;
+    private static final int DESCRIPTION_INDEX = 3;
+    private static final int STATUS_INDEX = 4;
+    private static final int START_TIME_INDEX = 5;
+    private static final int DURATION_INDEX = 6;
+    private static final int EPIC_ID_INDEX = 7;
 
     private ConverterToTask() {
     }
 
-    public static Task fromString(String value) {
-        String[] taskString = value.split(",");
-        Task result = null;
-        switch (TaskType.valueOf(taskString[1])) {
-            case TASK -> result = new Task(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
-                    TaskStatus.valueOf(taskString[4]));
+    public static Task fromString(String value) throws ConvertToTaskException {
 
-            case SUB_TASK -> result = new SubTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3],
-                    TaskStatus.valueOf(taskString[4]), Integer.parseInt(taskString[7]));
-
-            case EPIC_TASK -> result = new EpicTask(Integer.parseInt(taskString[0]), taskString[2], taskString[3]);
+        if (value == null) {
+            throw new ConvertToTaskException("value is null");
         }
-        return result;
+        try {
+            String[] taskString = value.split(",");
+            Task result = null;
+            int id = Integer.parseInt(taskString[ID_INDEX]);
+            TaskStatus taskStatus = TaskStatus.valueOf(taskString[STATUS_INDEX]);
+            switch (TaskType.valueOf(taskString[TYPE_INDEX])) {
+                case TASK -> result = new Task(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX], taskStatus);
+
+                case SUB_TASK -> result = new SubTask(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX],
+                        taskStatus, Integer.parseInt(taskString[EPIC_ID_INDEX]));
+
+                case EPIC_TASK -> result = new EpicTask(id, taskString[NAME_INDEX], taskString[DESCRIPTION_INDEX]);
+            }
+            return result;
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+            throw new ConvertToTaskException("string value have incorrect format", e);
+        }
     }
 }
