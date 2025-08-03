@@ -26,6 +26,10 @@ public class EpicTask extends Task {
         subInEpic.put(subTasks.getId(), subTasks);
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public TaskType getTaskType() {
         return TaskType.EPIC_TASK;

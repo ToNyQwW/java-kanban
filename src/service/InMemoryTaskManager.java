@@ -1,11 +1,18 @@
 package service;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
+import model.TaskStatus;
 import service.interfaces.HistoryManager;
 import service.interfaces.TaskManager;
 import util.Managers;
 
-import java.util.*;
+import java.time.Duration;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -47,6 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicTask.put(subTask);
 
         updateEpicTaskStatus(epicTask);
+        updateEpicTaskTime(epicTask);
     }
 
     @Override
@@ -76,6 +84,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicTask.put(subTasks);
 
         updateEpicTaskStatus(epicTask);
+        updateEpicTaskTime(epicTask);
         return true;
     }
 
@@ -107,6 +116,34 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    private void updateEpicTaskTime(EpicTask epicTask) {
+        //обнуляю данные в Эпике в ситуации, когда удалили все подзадачи методом clearSubtasksMap
+        if (epicTask.getSubInEpic().isEmpty()) {
+            setNullTimeInEpicTask(epicTask);
+            return;
+        }
+        List<SubTask> sortedSubTasks = epicTask.getSubInEpic().values().stream()
+                .filter(subTask -> subTask.getStartTime() != null)
+                .sorted(Comparator.comparing(Task::getStartTime)).toList();
+        // если у эпика уже были произведены расчеты и удалили подзадачу, но оставшиеся подзадачи без времени
+        if (sortedSubTasks.isEmpty()) {
+            setNullTimeInEpicTask(epicTask);
+        } else {
+            epicTask.setStartTime(sortedSubTasks.getFirst().getStartTime());
+
+            epicTask.setEndTime(sortedSubTasks.getLast().getEndTime());
+
+            epicTask.setDuration(sortedSubTasks.stream()
+                    .map(Task::getDuration)
+                    .reduce(Duration.ZERO, Duration::plus));
+        }
+    }
+
+    private void setNullTimeInEpicTask(EpicTask epicTask) {
+        epicTask.setStartTime(null);
+        epicTask.setDuration(Duration.ZERO);
+        epicTask.setEndTime(null);
+    }
 
     @Override
     public void removeTask(int id) {
@@ -120,6 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicTask.getSubInEpic().remove(id);
 
         updateEpicTaskStatus(epicTask);
+        updateEpicTaskTime(epicTask);
         subtasksMap.remove(id);
         historyManager.remove(id);
     }
@@ -149,6 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (EpicTask epicTask : epicTasksMap.values()) {
             epicTask.getSubInEpic().clear();
             updateEpicTaskStatus(epicTask);
+            updateEpicTaskTime(epicTask);
         }
     }
 
