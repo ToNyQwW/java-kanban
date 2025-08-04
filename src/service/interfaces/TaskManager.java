@@ -30,6 +30,8 @@ public interface TaskManager {
 
     void clearEpicTasksMap();
 
+    List<Task> getPrioritizedTasks();
+
     List<Task> getTasksList();
 
     List<SubTask> getSubTasksList();
