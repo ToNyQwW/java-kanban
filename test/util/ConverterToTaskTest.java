@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ConverterToTaskTest {
 
-    private static TaskManager taskManager;
     private static Task task;
     private static SubTask subTask;
     private static EpicTask epicTask;
@@ -24,7 +23,7 @@ class ConverterToTaskTest {
 
     @BeforeAll
     static void setUp() throws IOException {
-        taskManager = Managers.getDefault(Files.createTempFile("Test", ".txt"));
+        TaskManager taskManager = Managers.getDefault(Files.createTempFile("Test", ".txt"));
         task = new Task("Name", "Description", DONE);
         taskManager.addTask(task);
         epicTask = new EpicTask("Name", "Description");
@@ -34,19 +33,19 @@ class ConverterToTaskTest {
     }
 
     @Test
-    void ShouldCorrectlyConvertToTask() throws IOException {
+    void ShouldCorrectlyConvertToTask() {
         String taskString = task.toString();
         assertEquals(ConverterToTask.fromString(taskString), task);
     }
 
     @Test
-    void ShouldCorrectlyConvertToSubTask() throws IOException {
+    void ShouldCorrectlyConvertToSubTask() {
         String subTaskString = subTask.toString();
         assertEquals(ConverterToTask.fromString(subTaskString), subTask);
     }
 
     @Test
-    void ShouldCorrectlyConvertToEpicTask() throws IOException {
+    void ShouldCorrectlyConvertToEpicTask() {
         String epicTaskString = epicTask.toString();
         assertEquals(ConverterToTask.fromString(epicTaskString), epicTask);
     }
