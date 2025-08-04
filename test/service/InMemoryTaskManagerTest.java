@@ -10,8 +10,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.interfaces.TaskManager;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class InMemoryTaskManagerTest {
 
@@ -186,6 +191,81 @@ class InMemoryTaskManagerTest {
         taskManager.getEpicTask(epicTask2.getId());
         taskManager.clearEpicTasksMap();
         assertEquals(0, taskManager.getHistory().size());
+    }
 
+    @Test
+    void shouldCalculateTimeCorrectlyInEpicWhenAdd2SubTask() {
+        LocalDateTime time1 = LocalDateTime.now();
+        LocalDateTime time2 = time1.plusHours(1);
+        Duration duration1 = Duration.ofMinutes(30);
+        Duration duration2 = Duration.ofMinutes(45);
+
+        EpicTask epicTask = new EpicTask("TestName", "TestDescription");
+        taskManager.addEpicTask(epicTask);
+        SubTask subTask1 = new SubTask("TestName", "Description", NEW, time1, duration1, epicTask.getId());
+        SubTask subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
+        taskManager.addSubTask(subTask1);
+
+        assertEquals(time1, epicTask.getStartTime());
+        assertEquals(duration1, epicTask.getDuration());
+        assertEquals(time1.plus(duration1), epicTask.getEndTime());
+
+        taskManager.addSubTask(subTask2);
+        assertEquals(time1, epicTask.getStartTime());
+        assertEquals(duration1.plus(duration2), epicTask.getDuration());
+        assertEquals(time2.plus(duration2), epicTask.getEndTime());
+    }
+
+    @Test
+    void shouldCalculateTimeCorrectlyInEpicWhenAdd2SubTaskAndRemoveThem() {
+        LocalDateTime time1 = LocalDateTime.now();
+        LocalDateTime time2 = time1.plusHours(1);
+        Duration duration1 = Duration.ofMinutes(30);
+        Duration duration2 = Duration.ofMinutes(45);
+
+        EpicTask epicTask = new EpicTask("TestName", "TestDescription");
+        taskManager.addEpicTask(epicTask);
+        SubTask subTask1 = new SubTask("TestName", "Description", NEW, time1, duration1, epicTask.getId());
+        SubTask subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
+        taskManager.addSubTask(subTask2);
+
+        assertEquals(time2, epicTask.getStartTime());
+        assertEquals(duration2, epicTask.getDuration());
+        assertEquals(time2.plus(duration2), epicTask.getEndTime());
+
+        taskManager.addSubTask(subTask1);
+        assertEquals(time1, epicTask.getStartTime());
+        assertEquals(duration1.plus(duration2), epicTask.getDuration());
+        assertEquals(time2.plus(duration2), epicTask.getEndTime());
+
+        taskManager.removeSubTask(subTask1.getId());
+        assertEquals(time2, epicTask.getStartTime());
+        assertEquals(duration2, epicTask.getDuration());
+        assertEquals(time2.plus(duration2), epicTask.getEndTime());
+
+        taskManager.removeSubTask(subTask2.getId());
+        assertNull(epicTask.getStartTime());
+        assertEquals(Duration.ZERO, epicTask.getDuration());
+        assertNull(epicTask.getEndTime());
+    }
+
+    @Test
+    void shouldCalculateTimeCorrectlyInEpicWhenClearSubTaskMap() {
+        LocalDateTime time1 = LocalDateTime.now();
+        LocalDateTime time2 = time1.plusHours(1);
+        Duration duration1 = Duration.ofMinutes(30);
+        Duration duration2 = Duration.ofMinutes(45);
+
+        EpicTask epicTask = new EpicTask("TestName", "TestDescription");
+        taskManager.addEpicTask(epicTask);
+        SubTask subTask1 = new SubTask("TestName", "Description", NEW, time1, duration1, epicTask.getId());
+        SubTask subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
+        taskManager.addSubTask(subTask2);
+        taskManager.addSubTask(subTask1);
+        taskManager.clearSubtasksMap();
+
+        assertNull(epicTask.getStartTime());
+        assertEquals(Duration.ZERO, epicTask.getDuration());
+        assertNull(epicTask.getEndTime());
     }
 }
