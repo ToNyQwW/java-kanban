@@ -2,9 +2,7 @@ package util;
 
 import service.FileBackedTaskManager;
 import service.InMemoryHistoryManager;
-import service.PriorityTaskManager;
 import service.interfaces.HistoryManager;
-import service.interfaces.PriorityManager;
 import service.interfaces.TaskManager;
 
 import java.nio.file.Path;
@@ -21,9 +19,5 @@ public final class Managers {
 
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();
-    }
-
-    public static PriorityManager getDefaultPriority() {
-        return new PriorityTaskManager();
     }
 }
