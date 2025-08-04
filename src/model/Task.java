@@ -38,6 +38,10 @@ public class Task {
         this(DEFAULT_ID, name, description, status, null, Duration.ZERO);
     }
 
+    public boolean isTaskWithTime() {
+        return startTime != null && duration != Duration.ZERO;
+    }
+
     public int getId() {
         return id;
     }
