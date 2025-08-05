@@ -3,7 +3,6 @@ package service;
 import model.EpicTask;
 import model.SubTask;
 import model.Task;
-import model.TaskStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import service.interfaces.TaskManager;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import static model.TaskStatus.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
