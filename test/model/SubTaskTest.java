@@ -3,8 +3,9 @@ package model;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static model.TaskStatus.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static model.TaskStatus.DONE;
+import static model.TaskStatus.NEW;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SubTaskTest {
 

@@ -1,7 +1,10 @@
 package service.interfaces;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,4 +51,6 @@ public interface TaskManager {
     Optional<EpicTask> getEpicTask(int id);
 
     List<Task> getHistory();
+
+    LocalDateTime getBaseTime();
 }

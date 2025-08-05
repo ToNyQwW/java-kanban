@@ -21,7 +21,13 @@ class InMemoryTaskManagerTest {
     private static TaskManager taskManager;
     private Task task;
     private SubTask subTask;
+    private SubTask subTask2;
     private EpicTask epicTask;
+
+    private LocalDateTime time1;
+    private LocalDateTime time2;
+    private Duration duration1;
+    private Duration duration2;
 
     @BeforeAll
     static void setUp() {
@@ -30,14 +36,21 @@ class InMemoryTaskManagerTest {
 
     @BeforeEach
     void setUpEach() {
-        task = new Task("Name", "Description", NEW);
+        time1 = LocalDateTime.now();
+        time2 = time1.plusHours(1);
+        duration1 = Duration.ofMinutes(30);
+        duration2 = Duration.ofMinutes(45);
+
+        task = new Task("Name", "Description", NEW, time1, duration1);
         taskManager.addTask(task);
 
         epicTask = new EpicTask("Name", "Description");
         taskManager.addEpicTask(epicTask);
 
-        subTask = new SubTask("Name", "Description", NEW, epicTask.getId());
+        subTask = new SubTask("Name", "Description", NEW, time1, duration1, epicTask.getId());
+        subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
         taskManager.addSubTask(subTask);
+        taskManager.addSubTask(subTask2);
     }
 
     @AfterEach
@@ -56,7 +69,7 @@ class InMemoryTaskManagerTest {
         assertEquals(epicTask, taskManager.getEpicTasksList().getFirst());
 
 
-        assertEquals(1, taskManager.getSubTasksList().size());
+        assertEquals(2, taskManager.getSubTasksList().size());
         assertEquals(subTask, taskManager.getSubTasksList().getFirst());
     }
 
@@ -73,6 +86,7 @@ class InMemoryTaskManagerTest {
         assertEquals(NEW, EpicFromSub.getStatus());
 
         taskManager.removeSubTask(subTask.getId());
+        taskManager.removeSubTask(subTask2.getId());
         assertEquals(0, taskManager.getSubTasksList().size());
         assertEquals(0, epicTask.getSubInEpic().size());
         assertEquals(DONE, EpicFromSub.getStatus());
@@ -100,6 +114,7 @@ class InMemoryTaskManagerTest {
         SubTask updateSubTask = new SubTask(subTask.getId(), "NewName", "NewDescription",
                 IN_PROGRESS, epicTask.getId());
         taskManager.updateSubTask(updateSubTask);
+        taskManager.removeSubTask(subTask2.getId());
 
         assertEquals(1, taskManager.getSubTasksList().size());
         assertEquals(updateSubTask, taskManager.getSubTasksList().getFirst());
@@ -216,27 +231,11 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldCalculateTimeCorrectlyInEpicWhenAdd2SubTaskAndRemoveThem() {
-        LocalDateTime time1 = LocalDateTime.now();
-        LocalDateTime time2 = time1.plusHours(1);
-        Duration duration1 = Duration.ofMinutes(30);
-        Duration duration2 = Duration.ofMinutes(45);
-
-        EpicTask epicTask = new EpicTask("TestName", "TestDescription");
-        taskManager.addEpicTask(epicTask);
-        SubTask subTask1 = new SubTask("TestName", "Description", NEW, time1, duration1, epicTask.getId());
-        SubTask subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
-        taskManager.addSubTask(subTask2);
-
-        assertEquals(time2, epicTask.getStartTime());
-        assertEquals(duration2, epicTask.getDuration());
-        assertEquals(time2.plus(duration2), epicTask.getEndTime());
-
-        taskManager.addSubTask(subTask1);
         assertEquals(time1, epicTask.getStartTime());
         assertEquals(duration1.plus(duration2), epicTask.getDuration());
         assertEquals(time2.plus(duration2), epicTask.getEndTime());
 
-        taskManager.removeSubTask(subTask1.getId());
+        taskManager.removeSubTask(subTask.getId());
         assertEquals(time2, epicTask.getStartTime());
         assertEquals(duration2, epicTask.getDuration());
         assertEquals(time2.plus(duration2), epicTask.getEndTime());
@@ -249,21 +248,31 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldCalculateTimeCorrectlyInEpicWhenClearSubTaskMap() {
-        LocalDateTime time1 = LocalDateTime.now();
-        LocalDateTime time2 = time1.plusHours(1);
-        Duration duration1 = Duration.ofMinutes(30);
-        Duration duration2 = Duration.ofMinutes(45);
-
-        EpicTask epicTask = new EpicTask("TestName", "TestDescription");
-        taskManager.addEpicTask(epicTask);
-        SubTask subTask1 = new SubTask("TestName", "Description", NEW, time1, duration1, epicTask.getId());
-        SubTask subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
-        taskManager.addSubTask(subTask2);
-        taskManager.addSubTask(subTask1);
         taskManager.clearSubtasksMap();
-
         assertNull(epicTask.getStartTime());
         assertEquals(Duration.ZERO, epicTask.getDuration());
         assertNull(epicTask.getEndTime());
+    }
+
+    @Test
+    void updatePrioritizedTasksTest() {
+        SubTask subTask3 = new SubTask("", "", NEW, time1, duration1, epicTask.getId());
+        taskManager.addSubTask(subTask3);
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        taskManager.removeSubTask(subTask.getId());
+        assertEquals(2, taskManager.getPrioritizedTasks().size());
+        taskManager.removeTask(task.getId());
+        assertEquals(subTask3, taskManager.getPrioritizedTasks().getFirst());
+
+        taskManager.clearSubtasksMap();
+
+        Task task2 = new Task("", "", NEW, time1, duration1);
+        taskManager.addTask(task2);
+        taskManager.addTask(task);
+        System.out.println(taskManager.getPrioritizedTasks());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        taskManager.removeTask(task2.getId());
+        assertEquals(1, taskManager.getPrioritizedTasks().size());
+        assertEquals(task, taskManager.getPrioritizedTasks().getFirst());
     }
 }

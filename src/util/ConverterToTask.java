@@ -31,20 +31,20 @@ public final class ConverterToTask {
             TaskType type = TaskType.valueOf(taskString[TYPE_INDEX]);
             String name = taskString[NAME_INDEX];
             String description = taskString[DESCRIPTION_INDEX];
+            TaskStatus status = TaskStatus.valueOf(taskString[STATUS_INDEX]);
+            LocalDateTime startTime = taskString[START_TIME_INDEX].equals(" ") ?
+                    null : LocalDateTime.parse(taskString[START_TIME_INDEX]);
+            Duration duration = taskString[DURATION_INDEX].equals("0") ?
+                    Duration.ZERO : Duration.ofMinutes(Long.parseLong(taskString[DURATION_INDEX]));
 
             if (type == TaskType.EPIC_TASK) {
-                return new EpicTask(id, name, description);
+                return new EpicTask(id, name, description, status, startTime, duration);
             } else {
-                TaskStatus status = TaskStatus.valueOf(taskString[STATUS_INDEX]);
-                LocalDateTime startTime = taskString[START_TIME_INDEX].equals(" ") ?
-                        null : LocalDateTime.parse(taskString[START_TIME_INDEX]);
-                Duration duration = taskString[DURATION_INDEX].equals("0") ?
-                        Duration.ZERO : Duration.ofMinutes(Long.parseLong(taskString[DURATION_INDEX]));
                 if (type == TaskType.TASK) {
                     return new Task(id, name, description, status, startTime, duration);
                 } else {
                     int epicId = Integer.parseInt(taskString[EPIC_ID_INDEX]);
-                    return new SubTask(id, name, description, status, epicId);
+                    return new SubTask(id, name, description, status, startTime, duration, epicId);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {

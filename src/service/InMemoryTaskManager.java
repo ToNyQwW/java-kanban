@@ -10,15 +10,16 @@ import service.interfaces.TaskManager;
 import util.Managers;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class InMemoryTaskManager implements TaskManager {
 
     private final Map<Integer, Task> tasksMap;
     private final Map<Integer, SubTask> subtasksMap;
     private final Map<Integer, EpicTask> epicTasksMap;
+    private final Map<Integer, Task> unPriorityTaskMap;
 
     private final HistoryManager historyManager;
     private final PriorityManager priorityManager;
@@ -29,6 +30,7 @@ public class InMemoryTaskManager implements TaskManager {
         tasksMap = new HashMap<>();
         subtasksMap = new HashMap<>();
         epicTasksMap = new HashMap<>();
+        unPriorityTaskMap = new HashMap<>();
         historyManager = Managers.getDefaultHistory();
         priorityManager = Managers.getDefaultPriority();
     }
@@ -44,29 +46,33 @@ public class InMemoryTaskManager implements TaskManager {
     public void addTask(Task task) {
         increaseId();
         task.setId(id);
-        tasksMap.put(task.getId(), task);
-        priorityManager.addTask(task);
+        tasksMap.put(id, task);
+        if (!priorityManager.addTask(task)) {
+            unPriorityTaskMap.put(id, task);
+        }
     }
 
     @Override
     public void addSubTask(SubTask subTask) {
         increaseId();
         subTask.setId(id);
-        subtasksMap.put(subTask.getId(), subTask);
+        subtasksMap.put(id, subTask);
 
         EpicTask epicTask = epicTasksMap.get(subTask.getEpicId());
         epicTask.put(subTask);
 
         updateEpicTaskStatus(epicTask);
         updateEpicTaskTime(epicTask);
-        priorityManager.addTask(subTask);
+        if (!priorityManager.addTask(subTask)) {
+            unPriorityTaskMap.put(id, subTask);
+        }
     }
 
     @Override
     public void addEpicTask(EpicTask epicTask) {
         increaseId();
         epicTask.setId(id);
-        epicTasksMap.put(epicTask.getId(), epicTask);
+        epicTasksMap.put(id, epicTask);
     }
 
     private void addInHistory(Task task) {
@@ -83,11 +89,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (!tasksMap.containsKey(task.getId())) {
             return false;
         }
+        tasksMap.put(task.getId(), task);
         if (priorityManager.removeTask(task)) {
             priorityManager.addTask(task);
             updatePrioritizedTasks();
         }
-        return tasksMap.put(task.getId(), task) != null;
+        return true;
     }
 
     @Override
@@ -96,10 +103,8 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
         subtasksMap.put(subTasks.getId(), subTasks);
-
         EpicTask epicTask = epicTasksMap.get(subTasks.getEpicId());
         epicTask.put(subTasks);
-
         updateEpicTaskStatus(epicTask);
         updateEpicTaskTime(epicTask);
         if (priorityManager.removeTask(subTasks)) {
@@ -116,7 +121,6 @@ public class InMemoryTaskManager implements TaskManager {
             return false;
         }
         epicTasksMap.put(epicTask.getId(), epicTask);
-
         return true;
     }
 
@@ -144,7 +148,7 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         List<SubTask> sortedSubTasks = epicTask.getSubInEpic().values().stream()
-                .filter(subTask -> subTask.getStartTime() != null)
+                .filter(subTask -> subTask.isTaskWithTime() && subTask.getStatus() != TaskStatus.DONE)
                 .sorted(Comparator.comparing(Task::getStartTime)).toList();
         // если у эпика уже были произведены расчеты и удалили подзадачу, но оставшиеся подзадачи без времени
         if (sortedSubTasks.isEmpty()) {
@@ -166,18 +170,9 @@ public class InMemoryTaskManager implements TaskManager {
         epicTask.setEndTime(null);
     }
 
-    //Если удалена/изменена приоритетная задача, то ищем место для другой вне списка
+    //Если удалена/изменена приоритетная задача, то ищем место для другой вне приоритета
     private void updatePrioritizedTasks() {
-        getTaskForUpdatePrioritizedTasks()
-                .forEach(priorityManager::addTask);
-    }
-
-    private List<Task> getTaskForUpdatePrioritizedTasks() {
-        return Stream.concat(
-                        tasksMap.values().stream(),
-                        subtasksMap.values().stream())
-                .filter(task -> task.isTaskWithTime() && !priorityManager.containsTask(task))
-                .toList();
+        unPriorityTaskMap.values().removeIf(priorityManager::addTask);
     }
 
     /*
@@ -185,25 +180,26 @@ public class InMemoryTaskManager implements TaskManager {
     */
     @Override
     public void removeTask(int id) {
-        if (priorityManager.removeTask(tasksMap.get(id))) {
-            updatePrioritizedTasks();
-        }
+        Task taskToRemove = tasksMap.get(id);
         tasksMap.remove(id);
         historyManager.remove(id);
+        if (priorityManager.removeTask(taskToRemove)) {
+            updatePrioritizedTasks();
+        }
     }
 
     @Override
     public void removeSubTask(int id) {
-        if (priorityManager.removeTask(subtasksMap.get(id))) {
-            updatePrioritizedTasks();
-        }
-        EpicTask epicTask = epicTasksMap.get(subtasksMap.get(id).getEpicId());
+        SubTask subTaskToRemove = subtasksMap.get(id);
+        EpicTask epicTask = epicTasksMap.get(subTaskToRemove.getEpicId());
         epicTask.getSubInEpic().remove(id);
-
         updateEpicTaskStatus(epicTask);
         updateEpicTaskTime(epicTask);
         subtasksMap.remove(id);
         historyManager.remove(id);
+        if (priorityManager.removeTask(subTaskToRemove)) {
+            updatePrioritizedTasks();
+        }
     }
 
     // считаю, что без эпика подзадачи не существуют
@@ -317,5 +313,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public LocalDateTime getBaseTime() {
+        return priorityManager.getBaseTime();
     }
 }

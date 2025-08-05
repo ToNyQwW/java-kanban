@@ -2,6 +2,7 @@ package service.interfaces;
 
 import model.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PriorityManager {
@@ -10,7 +11,7 @@ public interface PriorityManager {
 
     boolean removeTask(Task taskToRemove);
 
-    boolean containsTask(Task taskToCheck);
-
     List<Task> getPrioritizedTasks();
+
+    LocalDateTime getBaseTime();
 }

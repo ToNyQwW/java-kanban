@@ -26,6 +26,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saveFile = saveFile;
     }
 
+    //сортирую на случай, если придет файл, где может subTask быть записан раньше epicTask
     public static FileBackedTaskManager loadFromFile(Path file) throws ManagerLoadException {
         FileBackedTaskManager result = new FileBackedTaskManager(file);
         try (BufferedReader reader = new BufferedReader(new FileReader(file.toFile()))) {
@@ -51,12 +52,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return result;
     }
 
-    //сортирую задачу по id перед сохранением, чтоб не было проблем при загрузке их из файла
     private void save() throws ManagerSaveException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(saveFile.toFile(), UTF_8))) {
             writer.write(CSV_HEADER + "\n");
             for (Task task : getSortedTasks()) {
-                writer.write(task.toString() + "\n");
+                writer.write(task + "\n");
             }
         } catch (IOException e) {
             throw new ManagerSaveException("ManagerSaveException", e);

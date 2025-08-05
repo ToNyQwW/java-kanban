@@ -1,6 +1,8 @@
 package service;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.interfaces.HistoryManager;
@@ -8,8 +10,9 @@ import util.Managers;
 
 import java.util.List;
 
-import static model.TaskStatus.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static model.TaskStatus.NEW;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InMemoryHistoryManagerTest {
 

@@ -1,5 +1,6 @@
 package model;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +10,10 @@ public class EpicTask extends Task {
     private final Map<Integer, SubTask> subInEpic = new HashMap<>();
     private LocalDateTime endTime;
 
+    public EpicTask(int id, String name, String description, TaskStatus status,
+                    LocalDateTime startTime, Duration duration) {
+        super(id, name, description, status, startTime, duration);
+    }
 
     public EpicTask(int id, String name, String description) {
         super(id, name, description, TaskStatus.NEW);

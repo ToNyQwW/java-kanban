@@ -4,6 +4,7 @@ import model.Task;
 import service.interfaces.PriorityManager;
 import util.TaskTimeIntersectionChecker;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class PriorityTaskManager implements PriorityManager {
@@ -42,8 +43,8 @@ public class PriorityTaskManager implements PriorityManager {
         return false;
     }
 
-    public boolean containsTask(Task taskToCheck) {
-        return prioritizedTasks.contains(taskToCheck);
+    public LocalDateTime getBaseTime() {
+        return timeChecker.getBaseTIme();
     }
 
     //старая реализация, до выполнения доп задания
