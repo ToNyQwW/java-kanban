@@ -10,10 +10,7 @@ import service.interfaces.TaskManager;
 import util.Managers;
 
 import java.time.Duration;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -272,24 +269,24 @@ public class InMemoryTaskManager implements TaskManager {
         Раздел get
     */
     @Override
-    public Task getTask(int id) {
+    public Optional<Task> getTask(int id) {
         Task task = tasksMap.get(id);
         addInHistory(task);
-        return task;
+        return Optional.ofNullable(task);
     }
 
     @Override
-    public SubTask getSubTask(int id) {
+    public Optional<SubTask> getSubTask(int id) {
         SubTask subTask = subtasksMap.get(id);
         addInHistory(subTask);
-        return subTask;
+        return Optional.ofNullable(subTask);
     }
 
     @Override
-    public EpicTask getEpicTask(int id) {
+    public Optional<EpicTask> getEpicTask(int id) {
         EpicTask epicTask = epicTasksMap.get(id);
         addInHistory(epicTask);
-        return epicTask;
+        return Optional.ofNullable(epicTask);
     }
 
     @Override

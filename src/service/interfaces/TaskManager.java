@@ -3,6 +3,7 @@ package service.interfaces;
 import model.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
 
@@ -40,11 +41,11 @@ public interface TaskManager {
 
     List<SubTask> getSubTasksFromEpicTaskId(int id);
 
-    Task getTask(int id);
+    Optional<Task> getTask(int id);
 
-    SubTask getSubTask(int id);
+    Optional<SubTask> getSubTask(int id);
 
-    EpicTask getEpicTask(int id);
+    Optional<EpicTask> getEpicTask(int id);
 
     List<Task> getHistory();
 }

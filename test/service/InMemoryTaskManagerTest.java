@@ -71,7 +71,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeSubtaskAndCheckIt() {
 
-        EpicTask EpicFromSub = taskManager.getEpicTask(subTask.getEpicId());
+        EpicTask EpicFromSub = taskManager.getEpicTask(subTask.getEpicId()).get();
         assertEquals(NEW, EpicFromSub.getStatus());
 
         taskManager.removeSubTask(subTask.getId());
