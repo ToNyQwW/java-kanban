@@ -186,6 +186,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (priorityManager.removeTask(taskToRemove)) {
             updatePrioritizedTasks();
         }
+        unPriorityTaskMap.remove(id);
     }
 
     @Override
@@ -200,6 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (priorityManager.removeTask(subTaskToRemove)) {
             updatePrioritizedTasks();
         }
+        unPriorityTaskMap.remove(id);
     }
 
     // считаю, что без эпика подзадачи не существуют
@@ -228,6 +230,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (priorityManager.removeTask(task)) {
                 updatePrioritizedTasks();
             }
+            unPriorityTaskMap.remove(task.getId());
         });
         tasksMap.clear();
     }
@@ -239,6 +242,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (priorityManager.removeTask(subTask)) {
                 updatePrioritizedTasks();
             }
+            unPriorityTaskMap.remove(subTask.getId());
         });
         subtasksMap.clear();
         for (EpicTask epicTask : epicTasksMap.values()) {
@@ -256,6 +260,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (priorityManager.removeTask(subTask)) {
                 updatePrioritizedTasks();
             }
+            unPriorityTaskMap.remove(subTask.getId());
         });
         subtasksMap.clear();
         epicTasksMap.clear();
@@ -288,6 +293,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getPrioritizedTasks() {
         return priorityManager.getPrioritizedTasks();
+    }
+
+    public List<Task> getUnprioritizedTasks() {
+        return new ArrayList<>(unPriorityTaskMap.values());
     }
 
     @Override

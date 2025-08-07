@@ -13,8 +13,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 import static model.TaskStatus.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
@@ -48,7 +47,7 @@ class InMemoryTaskManagerTest {
         taskManager.addEpicTask(epicTask);
 
         subTask = new SubTask("Name", "Description", NEW, time1, duration1, epicTask.getId());
-        subTask2 = new SubTask("TestName", "Description", NEW, time2, duration2, epicTask.getId());
+        subTask2 = new SubTask("Name", "Description", NEW, time2, duration2, epicTask.getId());
         taskManager.addSubTask(subTask);
         taskManager.addSubTask(subTask2);
     }
@@ -274,5 +273,23 @@ class InMemoryTaskManagerTest {
         taskManager.removeTask(task2.getId());
         assertEquals(1, taskManager.getPrioritizedTasks().size());
         assertEquals(task, taskManager.getPrioritizedTasks().getFirst());
+    }
+
+    @Test
+    void unPriorityCorrectlyRemovedSubTasksTest() {
+        assertEquals(subTask, taskManager.getUnprioritizedTasks().getFirst(),
+                "subtask должен быть в unPriority");
+        taskManager.removeSubTask(subTask.getId());
+        assertEquals(0, taskManager.getUnprioritizedTasks().size());
+    }
+
+    @Test
+    void unPriorityCorrectlyRemovedTasksTest() {
+        Task task2 = new Task("", "", NEW, time1, duration1);
+        taskManager.addTask(task2);
+        assertTrue(taskManager.getUnprioritizedTasks().contains(task2),
+                "task2 должен быть в unPriority");
+        taskManager.removeTask(task2.getId());
+        assertFalse(taskManager.getUnprioritizedTasks().contains(task2));
     }
 }
