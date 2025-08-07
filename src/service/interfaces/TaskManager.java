@@ -1,8 +1,12 @@
 package service.interfaces;
 
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskManager {
 
@@ -30,6 +34,10 @@ public interface TaskManager {
 
     void clearEpicTasksMap();
 
+    List<Task> getPrioritizedTasks();
+
+    List<Task> getUnprioritizedTasks();
+
     List<Task> getTasksList();
 
     List<SubTask> getSubTasksList();
@@ -38,11 +46,13 @@ public interface TaskManager {
 
     List<SubTask> getSubTasksFromEpicTaskId(int id);
 
-    Task getTask(int id);
+    Optional<Task> getTask(int id);
 
-    SubTask getSubTask(int id);
+    Optional<SubTask> getSubTask(int id);
 
-    EpicTask getEpicTask(int id);
+    Optional<EpicTask> getEpicTask(int id);
 
     List<Task> getHistory();
+
+    LocalDateTime getBaseTime();
 }
