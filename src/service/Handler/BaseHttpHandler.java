@@ -11,6 +11,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     public BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
+        gson = new Gson();
     }
 
     /*

@@ -2,6 +2,7 @@ package service;
 
 
 import com.sun.net.httpserver.HttpServer;
+import service.Handler.*;
 import service.interfaces.TaskManager;
 
 import java.io.IOException;
@@ -20,9 +21,11 @@ public class HttpTaskServerManager {
     }
 
     public void start() {
-        /*
-        TODO Handlers
-         */
+        server.createContext("/tasks", new TaskHandler(taskManager));
+        server.createContext("/subtasks", new SubTaskHandler(taskManager));
+        server.createContext("/epics", new EpicHandler(taskManager));
+        server.createContext("/history", new HistoryHandler(taskManager));
+        server.createContext("/priority", new PriorityHandler(taskManager));
         server.start();
     }
 
