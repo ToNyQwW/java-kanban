@@ -1,17 +1,13 @@
 package service.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import service.gsonAdapter.DurationAdapter;
-import service.gsonAdapter.StartTimeAdapter;
+import model.GsonTask;
 import service.interfaces.TaskManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public abstract class BaseHttpHandler implements HttpHandler {
@@ -23,12 +19,9 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     public BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
-        gson = new GsonBuilder()
-                .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new StartTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .create();
+        gson = GsonTask.getGson();
     }
+
 
     /*
     TODO методы sendResponse

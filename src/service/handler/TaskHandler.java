@@ -15,7 +15,7 @@ public class TaskHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        String requestMethod = exchange.getRequestMethod();
+        getTaskById(exchange);
     }
 
     private void getTaskById(HttpExchange exchange) {
