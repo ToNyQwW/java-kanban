@@ -3,7 +3,9 @@ package model;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static model.TaskStatus.DONE;
+import static model.TaskStatus.NEW;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class SubTaskTest {
 
@@ -13,7 +15,7 @@ class SubTaskTest {
     @BeforeAll
     static void setUp() {
         epicTask = new EpicTask(1, "EpicName", "EpicDescription");
-        subTask = new SubTask(2, "SubName", "SubDescription", TaskStatus.NEW, 1);
+        subTask = new SubTask(2, "SubName", "SubDescription", NEW, 1);
     }
 
     @Test
@@ -21,7 +23,7 @@ class SubTaskTest {
         assertEquals(2, subTask.getId());
         assertEquals("SubName", subTask.getName());
         assertEquals("SubDescription", subTask.getDescription());
-        assertEquals(TaskStatus.NEW, subTask.getStatus());
+        assertEquals(NEW, subTask.getStatus());
         assertEquals(1, epicTask.getId());
     }
 
@@ -33,13 +35,13 @@ class SubTaskTest {
     @Test
     void checkEqualsSubTasks() {
         assertEquals(subTask, subTask);
-        SubTask testSubTask = new SubTask(subTask.getId(), "", "", TaskStatus.DONE, epicTask.getId());
+        SubTask testSubTask = new SubTask(subTask.getId(), "", "", DONE, epicTask.getId());
         assertEquals(subTask, testSubTask);
     }
 
     @Test
     void testToString() {
-        String test = "2,SUB_TASK,SubName,SubDescription,NEW,1";
+        String test = "2,SUB_TASK,SubName,SubDescription,NEW, ,0,1";
         assertEquals(test, subTask.toString());
     }
 }

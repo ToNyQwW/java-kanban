@@ -1,19 +1,26 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EpicTask extends Task {
 
     private final Map<Integer, SubTask> subInEpic = new HashMap<>();
+    private LocalDateTime endTime;
 
+    public EpicTask(int id, String name, String description, TaskStatus status,
+                    LocalDateTime startTime, Duration duration) {
+        super(id, name, description, status, startTime, duration);
+    }
 
     public EpicTask(int id, String name, String description) {
         super(id, name, description, TaskStatus.NEW);
     }
 
     public EpicTask(String name, String description) {
-        super(-1, name, description, TaskStatus.NEW);
+        this(DEFAULT_ID, name, description);
     }
 
     public Map<Integer, SubTask> getSubInEpic() {
@@ -24,17 +31,17 @@ public class EpicTask extends Task {
         subInEpic.put(subTasks.getId(), subTasks);
     }
 
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
     @Override
     public TaskType getTaskType() {
         return TaskType.EPIC_TASK;
     }
 
     @Override
-    public String toString() {
-        return String.format("%d,%s,%s,%s, ,",
-                getId(),
-                TaskType.EPIC_TASK,
-                getName(),
-                getDescription());
+    public LocalDateTime getEndTime() {
+        return endTime;
     }
 }
