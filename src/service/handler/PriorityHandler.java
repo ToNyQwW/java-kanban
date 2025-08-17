@@ -1,13 +1,14 @@
-package service.Handler;
+package service.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import service.interfaces.TaskManager;
 
 import java.io.IOException;
 
-public class SubTaskHandler extends BaseHttpHandler  {
+public class PriorityHandler extends BaseHttpHandler  {
 
-    public SubTaskHandler(TaskManager taskManager) {
+
+    public PriorityHandler(TaskManager taskManager) {
         super(taskManager);
     }
 
