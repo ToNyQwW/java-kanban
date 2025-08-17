@@ -1,6 +1,4 @@
-package service.historyModel;
-
-import model.Task;
+package model;
 
 public class Node<T extends Task> {
 
