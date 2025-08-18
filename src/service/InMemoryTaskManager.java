@@ -179,7 +179,7 @@ public class InMemoryTaskManager implements TaskManager {
         Раздел remove
     */
     @Override
-    public void removeTask(int id) throws IllegalArgumentException{
+    public void removeTask(int id) throws IllegalArgumentException {
         if (tasksMap.containsKey(id)) {
             Task taskToRemove = tasksMap.get(id);
             tasksMap.remove(id);
@@ -195,17 +195,21 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeSubTask(int id) {
-        SubTask subTaskToRemove = subtasksMap.get(id);
-        EpicTask epicTask = epicTasksMap.get(subTaskToRemove.getEpicId());
-        epicTask.getSubInEpic().remove(id);
-        updateEpicTaskStatus(epicTask);
-        updateEpicTaskTime(epicTask);
-        subtasksMap.remove(id);
-        historyManager.remove(id);
-        if (priorityManager.removeTask(subTaskToRemove)) {
-            updatePrioritizedTasks();
+        if (subtasksMap.containsKey(id)) {
+            SubTask subTaskToRemove = subtasksMap.get(id);
+            EpicTask epicTask = epicTasksMap.get(subTaskToRemove.getEpicId());
+            epicTask.getSubInEpic().remove(id);
+            updateEpicTaskStatus(epicTask);
+            updateEpicTaskTime(epicTask);
+            subtasksMap.remove(id);
+            historyManager.remove(id);
+            if (priorityManager.removeTask(subTaskToRemove)) {
+                updatePrioritizedTasks();
+            }
+            unPriorityTaskMap.remove(id);
+        } else {
+            throw new IllegalArgumentException("SubTask with id " + id + " does not exist");
         }
-        unPriorityTaskMap.remove(id);
     }
 
     // считаю, что без эпика подзадачи не существуют
