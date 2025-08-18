@@ -11,12 +11,12 @@ import java.time.LocalDateTime;
 public class TimeAdapter extends TypeAdapter<LocalDateTime> {
 
     @Override
-    public void write(JsonWriter jsonWriter, LocalDateTime Time) throws IOException {
-        if (Time == null) {
+    public void write(JsonWriter jsonWriter, LocalDateTime time) throws IOException {
+        if (time == null) {
             jsonWriter.nullValue();
             return;
         }
-        jsonWriter.value(Time.toString());
+        jsonWriter.value(time.toString());
 
     }
 
