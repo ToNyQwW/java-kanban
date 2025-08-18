@@ -59,10 +59,10 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
         taskManager.addSubTask(subTask);
     }
 
-    @AfterAll
-    static void tearDown() {
-        server.stop();
-    }
+//    @AfterAll
+//    static void tearDown() {
+//        server.stop();
+//    }
 
 
     @Test
