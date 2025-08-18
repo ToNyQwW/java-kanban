@@ -12,6 +12,9 @@ import static model.Task.DEFAULT_ID;
 
 public class TaskHandler extends BaseHttpHandler {
 
+    private static final String CREATE_TASK = "Task created";
+    private static final String UPDATE_TASK = "Task updated";
+
     public TaskHandler(TaskManager taskManager) {
         super(taskManager);
     }
@@ -36,7 +39,7 @@ public class TaskHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
         Optional<Task> task = taskManager.getTask(id.get());
@@ -45,7 +48,7 @@ public class TaskHandler extends BaseHttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             sendResponse(exchange, gson.toJson(task.get()), 200);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -58,15 +61,15 @@ public class TaskHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
 
         try {
             taskManager.removeTask(id.get());
-            sendResponse(exchange, "Success", 200);
+            sendResponse(exchange, SUCCESS, 200);
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -76,14 +79,14 @@ public class TaskHandler extends BaseHttpHandler {
 
         if (task.getId() == DEFAULT_ID) {
             taskManager.addTask(task);
-            sendResponse(exchange, "Task created", 201);
+            sendResponse(exchange, CREATE_TASK, 201);
             return;
         }
 
         if (taskManager.updateTask(task)) {
-            sendResponse(exchange, "Task updated", 201);
+            sendResponse(exchange, UPDATE_TASK, 201);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 }

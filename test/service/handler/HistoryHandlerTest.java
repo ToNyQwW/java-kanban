@@ -1,13 +1,17 @@
 package service.handler;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
+import model.TaskStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.HttpTaskServerManager;
+import service.interfaces.HttpServerManager;
 import service.interfaces.TaskManager;
+import util.GsonTask;
 import util.Managers;
 
 import java.io.IOException;
@@ -20,14 +24,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HistoryHandlerTest {
 
     private static String uri = "http://localhost:8080/history";
 
     private static TaskManager taskManager;
-    private static HttpTaskServerManager server;
+    private static HttpServerManager server;
     private static HttpClient client;
     private static Gson gson;
 

@@ -1,12 +1,17 @@
 package service.handler;
 
 import com.google.gson.Gson;
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.Task;
+import model.TaskStatus;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.HttpTaskServerManager;
+import service.interfaces.HttpServerManager;
 import service.interfaces.TaskManager;
+import util.GsonTask;
 import util.Managers;
 
 import java.io.IOException;
@@ -26,7 +31,7 @@ class PriorityHandlerTest {
     private static String uri = "http://localhost:8080/priority";
 
     private static TaskManager taskManager;
-    private static HttpTaskServerManager server;
+    private static HttpServerManager server;
     private static HttpClient client;
     private static Gson gson;
 

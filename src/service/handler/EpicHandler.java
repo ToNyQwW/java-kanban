@@ -12,6 +12,9 @@ import static model.Task.DEFAULT_ID;
 
 public class EpicHandler extends BaseHttpHandler {
 
+    private static final String CREATE_EPIC = "EpicTask created";
+    private static final String UPDATE_EPIC = "EpicTask updated";
+
     public EpicHandler(TaskManager taskManager) {
         super(taskManager);
     }
@@ -39,7 +42,7 @@ public class EpicHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
         Optional<EpicTask> epicTask = taskManager.getEpicTask(id.get());
@@ -48,7 +51,7 @@ public class EpicHandler extends BaseHttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             sendResponse(exchange, gson.toJson(epicTask.get()), 200);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -56,7 +59,7 @@ public class EpicHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
         String response = gson.toJson(taskManager.getSubTasksFromEpicTaskId(id.get()));
@@ -72,15 +75,15 @@ public class EpicHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
 
         try {
             taskManager.removeEpicTask(id.get());
-            sendResponse(exchange, "Success", 200);
+            sendResponse(exchange, SUCCESS, 200);
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -90,14 +93,14 @@ public class EpicHandler extends BaseHttpHandler {
 
         if (epicTask.getId() == DEFAULT_ID) {
             taskManager.addEpicTask(epicTask);
-            sendResponse(exchange, "EpicTask created", 201);
+            sendResponse(exchange, CREATE_EPIC, 201);
             return;
         }
 
         if (taskManager.updateEpicTask(epicTask)) {
-            sendResponse(exchange, "EpicTask updated", 201);
+            sendResponse(exchange, UPDATE_EPIC, 201);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 }

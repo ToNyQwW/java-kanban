@@ -12,6 +12,9 @@ import static model.Task.DEFAULT_ID;
 
 public class SubTaskHandler extends BaseHttpHandler {
 
+    private static final String CREATE_SUBTASK = "SubTask created";
+    private static final String UPDATE_SUBTASK = "SubTask updated";
+
     public SubTaskHandler(TaskManager taskManager) {
         super(taskManager);
     }
@@ -36,7 +39,7 @@ public class SubTaskHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
         Optional<SubTask> subTask = taskManager.getSubTask(id.get());
@@ -45,7 +48,7 @@ public class SubTaskHandler extends BaseHttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             sendResponse(exchange, gson.toJson(subTask.get()), 200);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -58,15 +61,15 @@ public class SubTaskHandler extends BaseHttpHandler {
         Optional<Integer> id = parseIdFromRequest(exchange);
 
         if (id.isEmpty()) {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
             return;
         }
 
         try {
             taskManager.removeSubTask(id.get());
-            sendResponse(exchange, "Success", 200);
+            sendResponse(exchange, SUCCESS, 200);
         } catch (IllegalArgumentException e) {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 
@@ -76,14 +79,14 @@ public class SubTaskHandler extends BaseHttpHandler {
 
         if (subTask.getId() == DEFAULT_ID) {
             taskManager.addSubTask(subTask);
-            sendResponse(exchange, "SubTask created", 201);
+            sendResponse(exchange, CREATE_SUBTASK, 201);
             return;
         }
 
         if (taskManager.updateSubTask(subTask)) {
-            sendResponse(exchange, "SubTask updated", 201);
+            sendResponse(exchange, UPDATE_SUBTASK, 201);
         } else {
-            sendResponse(exchange, "Not Found", 404);
+            sendResponse(exchange, NOT_FOUND, 404);
         }
     }
 }

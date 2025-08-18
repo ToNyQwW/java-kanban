@@ -18,7 +18,7 @@ public class PriorityHandler extends BaseHttpHandler {
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
             sendResponse(exchange, gson.toJson(taskManager.getPrioritizedTasks()), 200);
         } else {
-            sendResponse(exchange, "Error", 400);
+            sendResponse(exchange, INVALID_REQUEST, 400);
         }
     }
 }

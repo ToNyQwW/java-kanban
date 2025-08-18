@@ -2,13 +2,17 @@ package service.handler;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import model.*;
+import model.EpicTask;
+import model.SubTask;
+import model.TaskStatus;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.HttpTaskServerManager;
+import service.interfaces.HttpServerManager;
 import service.interfaces.TaskManager;
+import util.GsonTask;
 import util.Managers;
 
 import java.io.IOException;
@@ -22,15 +26,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static service.handler.BaseHttpHandler.INVALID_REQUEST;
+import static service.handler.BaseHttpHandler.NOT_FOUND;
 
 class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
     private static String uri = "http://localhost:8080/epics";
 
     private static TaskManager taskManager;
-    private static HttpTaskServerManager server;
+    private static HttpServerManager server;
     private static HttpClient client;
     private static Gson gson;
 
@@ -47,7 +51,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
     }
 
     @BeforeEach
-    void setUpEach() throws IOException {
+    void setUpEach(){
         epicTask = new EpicTask("epicTask", "");
         taskManager.addEpicTask(epicTask);
         subTask = new SubTask("subTask", "", TaskStatus.NEW,
@@ -84,7 +88,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode(), "epicTask должен быть не найден (400)");
-        assertEquals("Not Found", response.body());
+        assertEquals(NOT_FOUND, response.body());
     }
 
     @Test
@@ -96,7 +100,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode(), "Не правильный запрос (400)");
-        assertEquals("Error", response.body());
+        assertEquals(INVALID_REQUEST, response.body());
     }
 
 
@@ -118,7 +122,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
     @Test
     void getEpicSubTasksTest() throws IOException, InterruptedException {
-        taskManager.addSubTask(new SubTask("SubTask2","",TaskStatus.NEW,epicTask.getId()));
+        taskManager.addSubTask(new SubTask("SubTask2", "", TaskStatus.NEW, epicTask.getId()));
         String stringId = String.valueOf(epicTask.getId());
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
@@ -158,7 +162,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Not Found", response.body());
+        assertEquals(NOT_FOUND, response.body());
     }
 
     @Test
@@ -170,7 +174,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(400, response.statusCode());
-        assertEquals("Error", response.body());
+        assertEquals(INVALID_REQUEST, response.body());
     }
 
     @Test
@@ -218,6 +222,6 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(404, response.statusCode());
-        assertEquals("Not Found", response.body());
+        assertEquals(NOT_FOUND, response.body());
     }
 }

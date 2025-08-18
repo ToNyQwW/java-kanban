@@ -3,8 +3,8 @@ package service.handler;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import model.GsonTask;
 import service.interfaces.TaskManager;
+import util.GsonTask;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,6 +14,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     private static final int INDEX_ID = 2;
 
+    protected static final String INVALID_REQUEST = "Invalid Request";
+    protected static final String NOT_FOUND = "Not Found";
+    protected static final String SUCCESS = "Success";
+
     protected final TaskManager taskManager;
     protected final Gson gson;
 
@@ -21,12 +25,6 @@ public abstract class BaseHttpHandler implements HttpHandler {
         this.taskManager = taskManager;
         gson = GsonTask.getGson();
     }
-
-
-    /*
-    TODO методы sendResponse
-     */
-
 
     protected void sendResponse(HttpExchange exchange, String response, int responseCode) throws IOException {
         try (OutputStream os = exchange.getResponseBody()) {
