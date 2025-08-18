@@ -1,11 +1,9 @@
 package service.handler;
 
 import com.google.gson.reflect.TypeToken;
-import model.Task;
+import model.SubTask;
 
 import java.util.List;
 
-public class TaskListTypeToken extends TypeToken<List<Task>> {
+public class SubTaskListTypeToken extends TypeToken<List<SubTask>> {
 }
-
-

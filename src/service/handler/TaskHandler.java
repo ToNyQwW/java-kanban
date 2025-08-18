@@ -37,6 +37,7 @@ public class TaskHandler extends BaseHttpHandler {
 
         if (id.isEmpty()) {
             sendResponse(exchange, "Error", 400);
+            return;
         }
         Optional<Task> task = taskManager.getTask(id.get());
 
@@ -58,6 +59,7 @@ public class TaskHandler extends BaseHttpHandler {
 
         if (id.isEmpty()) {
             sendResponse(exchange, "Error", 400);
+            return;
         }
 
         try {

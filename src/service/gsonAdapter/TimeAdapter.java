@@ -2,30 +2,30 @@ package service.gsonAdapter;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 
-public class StartTimeAdapter extends TypeAdapter<LocalDateTime> {
+public class TimeAdapter extends TypeAdapter<LocalDateTime> {
 
     @Override
-    public void write(JsonWriter jsonWriter, LocalDateTime startTime) throws IOException {
-        if (startTime == null) {
+    public void write(JsonWriter jsonWriter, LocalDateTime Time) throws IOException {
+        if (Time == null) {
             jsonWriter.nullValue();
             return;
         }
-        jsonWriter.value(startTime.toString());
+        jsonWriter.value(Time.toString());
 
     }
 
     @Override
     public LocalDateTime read(JsonReader jsonReader) throws IOException {
-        String result = jsonReader.nextString();
-
-        if (result == null) {
+        if (jsonReader.peek() == JsonToken.NULL) {
+            jsonReader.nextNull();
             return null;
         }
-        return LocalDateTime.parse(result);
+        return LocalDateTime.parse(jsonReader.nextString());
     }
 }

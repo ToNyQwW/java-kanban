@@ -3,7 +3,7 @@ package model;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import service.gsonAdapter.DurationAdapter;
-import service.gsonAdapter.StartTimeAdapter;
+import service.gsonAdapter.TimeAdapter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public final class GsonTask {
     static {
         gson = new GsonBuilder()
                 .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new StartTimeAdapter())
+                .registerTypeAdapter(LocalDateTime.class, new TimeAdapter())
                 .registerTypeAdapter(Duration.class, new DurationAdapter())
                 .create();
     }

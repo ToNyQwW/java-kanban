@@ -1,6 +1,7 @@
 package service.handler;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,10 +22,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class SubTaskHandlerTest {
+class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
-    private static String uri = "http://localhost:8080/subtasks";
+    private static String uri = "http://localhost:8080/epics";
 
     private static TaskManager taskManager;
     private static HttpTaskServerManager server;
@@ -59,33 +62,33 @@ class SubTaskHandlerTest {
 
 
     @Test
-    void getSubTaskByIdTest() throws IOException, InterruptedException {
-        String stringId = String.valueOf(subTask.getId());
+    void getEpicByIdTest() throws IOException, InterruptedException {
+        String stringId = String.valueOf(epicTask.getId());
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(uri + "/" + stringId))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(200, response.statusCode(), "subTask должен быть найден (200)");
-        SubTask taskFromResponse = gson.fromJson(response.body(), SubTask.class);
-        assertEquals(subTask, taskFromResponse, "response должен вернуть subTask");
+        assertEquals(200, response.statusCode(), "epicTask должен быть найден (200)");
+        EpicTask taskFromResponse = gson.fromJson(response.body(), EpicTask.class);
+        assertEquals(epicTask, taskFromResponse, "response должен вернуть epicTask");
     }
 
     @Test
-    void getSubTaskByIdShouldReturn404() throws IOException, InterruptedException {
+    void getEpicByIdShouldReturn404() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(uri + "/-1"))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertEquals(404, response.statusCode(), "subTask должен быть не найден (400)");
+        assertEquals(404, response.statusCode(), "epicTask должен быть не найден (400)");
         assertEquals("Not Found", response.body());
     }
 
     @Test
-    void getSubTaskByIdShouldReturn400() throws IOException, InterruptedException {
+    void getEpicByIdShouldReturn400() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(uri + "/ErrorRequest"))
@@ -98,25 +101,41 @@ class SubTaskHandlerTest {
 
 
     @Test
-    void getSubTasksTest() throws IOException, InterruptedException {
-        taskManager.clearSubtasksMap();
-        taskManager.addSubTask(subTask);
-        taskManager.addSubTask(new SubTask("subTask2", "", TaskStatus.NEW,
-                LocalDateTime.now().plusMinutes(60), Duration.ofMinutes(30), epicTask.getId()));
+    void getEpicsTest() throws IOException, InterruptedException {
+        taskManager.clearEpicTasksMap();
+        taskManager.addEpicTask(epicTask);
+        taskManager.addEpicTask(new EpicTask("epicTask2", ""));
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(uri))
                 .build();
+
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
-        List<SubTask> tasks = gson.fromJson(response.body(), new SubTaskListTypeToken().getType());
-        assertEquals(tasks, taskManager.getSubTasksList(), "Коллекции должны быть равны");
+        List<EpicTask> epicTasks = gson.fromJson(response.body(), new EpicTaskListTypeToken().getType());
+        assertEquals(epicTasks, taskManager.getEpicTasksList(), "Коллекции должны быть равны");
     }
 
     @Test
-    void deleteSubTaskByIdTest() throws IOException, InterruptedException {
-        assertFalse(taskManager.getSubTask(subTask.getId()).isEmpty(), "до удаления задача присутствует");
-        String stringId = String.valueOf(subTask.getId());
+    void getEpicSubTasksTest() throws IOException, InterruptedException {
+        taskManager.addSubTask(new SubTask("SubTask2","",TaskStatus.NEW,epicTask.getId()));
+        String stringId = String.valueOf(epicTask.getId());
+        HttpRequest request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create(uri + "/" + stringId + "/subtasks"))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+        List<SubTask> epicTasks = gson.fromJson(response.body(), new SubTaskListTypeToken().getType());
+        assertEquals(epicTasks, taskManager.getSubTasksFromEpicTaskId(epicTask.getId()),
+                "Коллекции должны быть равны");
+    }
+
+    @Test
+    void deleteEpicTaskByIdTest() throws IOException, InterruptedException {
+        assertFalse(taskManager.getEpicTask(epicTask.getId()).isEmpty(), "до удаления задача присутствует");
+        String stringId = String.valueOf(epicTask.getId());
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
                 .uri(URI.create(uri + "/" + stringId))
@@ -124,14 +143,14 @@ class SubTaskHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, response.statusCode());
-        assertTrue(taskManager.getSubTask(subTask.getId()).isEmpty(), "Задача должна быть удалена");
+        assertTrue(taskManager.getSubTask(epicTask.getId()).isEmpty(), "Задача должна быть удалена");
     }
 
     @Test
-    void deleteSubTaskByIdShouldReturn404() throws IOException, InterruptedException {
-        taskManager.clearSubtasksMap();
-        assertTrue(taskManager.getSubTask(subTask.getId()).isEmpty(), "до удаления задача отсутствует");
-        String stringId = String.valueOf(subTask.getId());
+    void deleteEpicTaskByIdShouldReturn404() throws IOException, InterruptedException {
+        taskManager.clearEpicTasksMap();
+        assertTrue(taskManager.getEpicTask(epicTask.getId()).isEmpty(), "до удаления задача отсутствует");
+        String stringId = String.valueOf(epicTask.getId());
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
                 .uri(URI.create(uri + "/" + stringId))
@@ -143,7 +162,7 @@ class SubTaskHandlerTest {
     }
 
     @Test
-    void deleteSubTaskByIdShouldReturn400() throws IOException, InterruptedException {
+    void deleteEpicTaskByIdShouldReturn400() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .DELETE()
                 .uri(URI.create(uri + "/ErrorRequest"))
@@ -155,11 +174,9 @@ class SubTaskHandlerTest {
     }
 
     @Test
-    void createSubTaskTest() throws IOException, InterruptedException {
-        taskManager.clearSubtasksMap();
-        SubTask subTaskForTest = new SubTask("subTask2", "", TaskStatus.NEW,
-                LocalDateTime.now().plusMinutes(60), Duration.ofMinutes(30), epicTask.getId());
-        String jsonTask = gson.toJson(subTaskForTest);
+    void createEpicTaskTest() throws IOException, InterruptedException {
+        taskManager.clearEpicTasksMap();
+        String jsonTask = gson.toJson(new EpicTask("epicTask", ""));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
@@ -168,14 +185,13 @@ class SubTaskHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("SubTask created", response.body());
-        assertEquals(1, taskManager.getSubTasksList().size());
+        assertEquals("EpicTask created", response.body());
+        assertEquals(1, taskManager.getEpicTasksList().size());
     }
 
     @Test
-    void updateSubTaskTest() throws IOException, InterruptedException {
-        String jsonTask = gson.toJson(new SubTask(subTask.getId(), "SubTaskUpdated", "", TaskStatus.NEW,
-                LocalDateTime.now().plusMinutes(60), Duration.ofMinutes(30), epicTask.getId()));
+    void updateEpicTaskTest() throws IOException, InterruptedException {
+        String jsonTask = gson.toJson(new EpicTask(epicTask.getId(), "epicTaskUpdated", ""));
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
@@ -184,16 +200,16 @@ class SubTaskHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("SubTask updated", response.body());
-        assertEquals("SubTaskUpdated", taskManager.getSubTask(subTask.getId()).get().getName(),
+        assertEquals("EpicTask updated", response.body());
+        assertEquals("epicTaskUpdated", taskManager.getEpicTask(epicTask.getId()).get().getName(),
                 "Информация о задача должна обновится");
 
     }
 
     @Test
-    void updateSubTaskShouldReturn404() throws IOException, InterruptedException {
-        taskManager.clearSubtasksMap();
-        String jsonTask = gson.toJson(subTask);
+    void updateEpicTaskShouldReturn404() throws IOException, InterruptedException {
+        taskManager.clearEpicTasksMap();
+        String jsonTask = gson.toJson(epicTask);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(jsonTask))
@@ -204,5 +220,4 @@ class SubTaskHandlerTest {
         assertEquals(404, response.statusCode());
         assertEquals("Not Found", response.body());
     }
-
 }

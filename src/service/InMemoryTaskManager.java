@@ -215,17 +215,21 @@ public class InMemoryTaskManager implements TaskManager {
     // считаю, что без эпика подзадачи не существуют
     @Override
     public void removeEpicTask(int id) {
-        subtasksMap.values().stream().filter(subTask -> subTask.getEpicId() == id)
-                .forEach(subTask -> {
-                    historyManager.remove(subTask.getId());
-                    if (priorityManager.removeTask(subTask)) {
-                        updatePrioritizedTasks();
-                    }
-                });
-        subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
-        epicTasksMap.get(id).getSubInEpic().clear();
-        epicTasksMap.remove(id);
-        historyManager.remove(id);
+        if (epicTasksMap.containsKey(id)) {
+            subtasksMap.values().stream().filter(subTask -> subTask.getEpicId() == id)
+                    .forEach(subTask -> {
+                        historyManager.remove(subTask.getId());
+                        if (priorityManager.removeTask(subTask)) {
+                            updatePrioritizedTasks();
+                        }
+                    });
+            subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
+            epicTasksMap.get(id).getSubInEpic().clear();
+            epicTasksMap.remove(id);
+            historyManager.remove(id);
+        } else {
+            throw new IllegalArgumentException("EpicTask with id " + id + " does not exist");
+        }
     }
 
     /*

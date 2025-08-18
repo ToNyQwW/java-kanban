@@ -37,6 +37,7 @@ public class SubTaskHandler extends BaseHttpHandler {
 
         if (id.isEmpty()) {
             sendResponse(exchange, "Error", 400);
+            return;
         }
         Optional<SubTask> subTask = taskManager.getSubTask(id.get());
 
@@ -58,6 +59,7 @@ public class SubTaskHandler extends BaseHttpHandler {
 
         if (id.isEmpty()) {
             sendResponse(exchange, "Error", 400);
+            return;
         }
 
         try {

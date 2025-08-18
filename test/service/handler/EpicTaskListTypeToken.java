@@ -1,11 +1,9 @@
 package service.handler;
 
 import com.google.gson.reflect.TypeToken;
-import model.Task;
+import model.EpicTask;
 
 import java.util.List;
 
-public class TaskListTypeToken extends TypeToken<List<Task>> {
+public class EpicTaskListTypeToken extends TypeToken<List<EpicTask>> {
 }
-
-
