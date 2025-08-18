@@ -179,14 +179,18 @@ public class InMemoryTaskManager implements TaskManager {
         Раздел remove
     */
     @Override
-    public void removeTask(int id) {
-        Task taskToRemove = tasksMap.get(id);
-        tasksMap.remove(id);
-        historyManager.remove(id);
-        if (priorityManager.removeTask(taskToRemove)) {
-            updatePrioritizedTasks();
+    public void removeTask(int id) throws IllegalArgumentException{
+        if (tasksMap.containsKey(id)) {
+            Task taskToRemove = tasksMap.get(id);
+            tasksMap.remove(id);
+            historyManager.remove(id);
+            if (priorityManager.removeTask(taskToRemove)) {
+                updatePrioritizedTasks();
+            }
+            unPriorityTaskMap.remove(id);
+        } else {
+            throw new IllegalArgumentException("Task with id " + id + " does not exist");
         }
-        unPriorityTaskMap.remove(id);
     }
 
     @Override

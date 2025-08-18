@@ -14,8 +14,8 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     private static final int INDEX_ID = 2;
 
-    private final TaskManager taskManager;
-    private final Gson gson;
+    protected final TaskManager taskManager;
+    protected final Gson gson;
 
     public BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
@@ -28,14 +28,10 @@ public abstract class BaseHttpHandler implements HttpHandler {
      */
 
 
-    protected void sendResponse(HttpExchange exchange, String response, int responseCode) {
+    protected void sendResponse(HttpExchange exchange, String response, int responseCode) throws IOException {
         try (OutputStream os = exchange.getResponseBody()) {
             exchange.sendResponseHeaders(responseCode, response.length());
             os.write(response.getBytes());
-        } catch (IOException e) {
-            /*
-            TODO EXCEPTION
-             */
         }
     }
 
@@ -46,14 +42,5 @@ public abstract class BaseHttpHandler implements HttpHandler {
         } catch (NumberFormatException e) {
             return Optional.empty();
         }
-    }
-
-
-    public TaskManager getTaskManager() {
-        return taskManager;
-    }
-
-    public Gson getGson() {
-        return gson;
     }
 }
