@@ -5,6 +5,7 @@ import model.EpicTask;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,6 +58,11 @@ class PriorityHandlerTest {
         taskManager.addSubTask(subTask);
         task = new Task("Task", "", TaskStatus.DONE);
         taskManager.addTask(task);
+    }
+
+    @AfterAll
+    static void tearDown() {
+        server.stop();
     }
 
     @Test

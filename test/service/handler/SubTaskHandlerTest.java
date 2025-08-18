@@ -63,7 +63,6 @@ class SubTaskHandlerTest {
         server.stop();
     }
 
-
     @Test
     void getSubTaskByIdTest() throws IOException, InterruptedException {
         String stringId = String.valueOf(subTask.getId());
