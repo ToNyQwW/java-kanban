@@ -14,6 +14,11 @@ public class HistoryHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-
+        if (exchange.getRequestMethod().equals("GET")) {
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+            sendResponse(exchange, gson.toJson(taskManager.getHistory()), 200);
+        } else {
+            sendResponse(exchange, "Error", 400);
+        }
     }
 }
