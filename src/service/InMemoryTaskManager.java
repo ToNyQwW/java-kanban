@@ -4,6 +4,7 @@ import model.EpicTask;
 import model.SubTask;
 import model.Task;
 import model.TaskStatus;
+import service.exceptions.NotFoundTaskException;
 import service.interfaces.HistoryManager;
 import service.interfaces.PriorityManager;
 import service.interfaces.TaskManager;
@@ -179,57 +180,56 @@ public class InMemoryTaskManager implements TaskManager {
         Раздел remove
     */
     @Override
-    public void removeTask(int id) throws IllegalArgumentException {
-        if (tasksMap.containsKey(id)) {
-            Task taskToRemove = tasksMap.get(id);
-            tasksMap.remove(id);
-            historyManager.remove(id);
-            if (priorityManager.removeTask(taskToRemove)) {
-                updatePrioritizedTasks();
-            }
-            unPriorityTaskMap.remove(id);
-        } else {
-            throw new IllegalArgumentException("Task with id " + id + " does not exist");
+    public void removeTask(int id) throws NotFoundTaskException {
+        Task taskToRemove = tasksMap.remove(id);
+
+        if (taskToRemove == null) {
+            throw new NotFoundTaskException("Task with id " + id + " not found");
         }
+        historyManager.remove(id);
+
+        if (priorityManager.removeTask(taskToRemove)) {
+            updatePrioritizedTasks();
+        }
+        unPriorityTaskMap.remove(id);
     }
 
     @Override
-    public void removeSubTask(int id) {
-        if (subtasksMap.containsKey(id)) {
-            SubTask subTaskToRemove = subtasksMap.get(id);
-            EpicTask epicTask = epicTasksMap.get(subTaskToRemove.getEpicId());
-            epicTask.getSubInEpic().remove(id);
-            updateEpicTaskStatus(epicTask);
-            updateEpicTaskTime(epicTask);
-            subtasksMap.remove(id);
-            historyManager.remove(id);
-            if (priorityManager.removeTask(subTaskToRemove)) {
-                updatePrioritizedTasks();
-            }
-            unPriorityTaskMap.remove(id);
-        } else {
-            throw new IllegalArgumentException("SubTask with id " + id + " does not exist");
+    public void removeSubTask(int id) throws NotFoundTaskException {
+        SubTask subTaskToRemove = subtasksMap.remove(id);
+
+        if (subTaskToRemove == null) {
+            throw new NotFoundTaskException("SubTask with id " + id + " not found");
         }
+        EpicTask epicTask = epicTasksMap.get(subTaskToRemove.getEpicId());
+        epicTask.getSubInEpic().remove(id);
+        updateEpicTaskStatus(epicTask);
+        updateEpicTaskTime(epicTask);
+        historyManager.remove(id);
+
+        if (priorityManager.removeTask(subTaskToRemove)) {
+            updatePrioritizedTasks();
+        }
+        unPriorityTaskMap.remove(id);
     }
 
     // считаю, что без эпика подзадачи не существуют
     @Override
-    public void removeEpicTask(int id) {
-        if (epicTasksMap.containsKey(id)) {
-            subtasksMap.values().stream().filter(subTask -> subTask.getEpicId() == id)
-                    .forEach(subTask -> {
-                        historyManager.remove(subTask.getId());
-                        if (priorityManager.removeTask(subTask)) {
-                            updatePrioritizedTasks();
-                        }
-                    });
-            subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
-            epicTasksMap.get(id).getSubInEpic().clear();
-            epicTasksMap.remove(id);
-            historyManager.remove(id);
-        } else {
-            throw new IllegalArgumentException("EpicTask with id " + id + " does not exist");
+    public void removeEpicTask(int id) throws NotFoundTaskException {
+        EpicTask epicTaskToRemove = epicTasksMap.remove(id);
+
+        if (epicTaskToRemove == null) {
+            throw new NotFoundTaskException("EpicTask with id " + id + " not found");
         }
+        subtasksMap.values().stream().filter(subTask -> subTask.getEpicId() == id)
+                .forEach(subTask -> {
+                    historyManager.remove(subTask.getId());
+                    if (priorityManager.removeTask(subTask)) {
+                        updatePrioritizedTasks();
+                    }
+                });
+        subtasksMap.values().removeIf(subTask -> subTask.getEpicId() == id);
+        historyManager.remove(id);
     }
 
     /*

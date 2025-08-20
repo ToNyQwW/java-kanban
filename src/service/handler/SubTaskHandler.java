@@ -2,6 +2,7 @@ package service.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import model.SubTask;
+import service.exceptions.NotFoundTaskException;
 import service.interfaces.TaskManager;
 
 import java.io.IOException;
@@ -68,7 +69,7 @@ public class SubTaskHandler extends BaseHttpHandler {
         try {
             taskManager.removeSubTask(id.get());
             sendResponse(exchange, SUCCESS, 200);
-        } catch (IllegalArgumentException e) {
+        } catch (NotFoundTaskException e) {
             sendResponse(exchange, NOT_FOUND, 404);
         }
     }
