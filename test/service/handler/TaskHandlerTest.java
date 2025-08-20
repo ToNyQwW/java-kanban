@@ -24,8 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static service.handler.BaseHttpHandler.INVALID_REQUEST;
-import static service.handler.BaseHttpHandler.NOT_FOUND;
+import static service.handler.BaseHttpHandler.*;
 
 class TaskHandlerTest {
 
@@ -170,7 +169,7 @@ class TaskHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("Task created", response.body());
+        assertEquals(CREATE, response.body());
         assertEquals(1, taskManager.getTasksList().size());
     }
 
@@ -186,7 +185,7 @@ class TaskHandlerTest {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("Task updated", response.body());
+        assertEquals(UPDATE, response.body());
         assertEquals("TaskUpdated", taskManager.getTask(task.getId()).get().getName(),
                 "Информация о задача должна обновится");
 

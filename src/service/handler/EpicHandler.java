@@ -2,19 +2,13 @@ package service.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import model.EpicTask;
-import service.exceptions.NotFoundTaskException;
+import model.Task;
 import service.interfaces.TaskManager;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-import static model.Task.DEFAULT_ID;
-
 public class EpicHandler extends BaseHttpHandler {
-
-    private static final String CREATE_EPIC = "EpicTask created";
-    private static final String UPDATE_EPIC = "EpicTask updated";
 
     public EpicHandler(TaskManager taskManager) {
         super(taskManager);
@@ -30,29 +24,11 @@ public class EpicHandler extends BaseHttpHandler {
                 } else if (exchange.getRequestURI().getPath().endsWith("subtasks")) {
                     getEpicSubTasks(exchange);
                 } else {
-                    getEpicById(exchange);
+                    getById(exchange);
                 }
             }
-            case "POST" -> createOrUpdateEpic(exchange);
-            case "DELETE" -> deleteEpic(exchange);
-        }
-    }
-
-
-    private void getEpicById(HttpExchange exchange) throws IOException {
-        Optional<Integer> id = parseIdFromRequest(exchange);
-
-        if (id.isEmpty()) {
-            sendResponse(exchange, INVALID_REQUEST, 400);
-            return;
-        }
-        Optional<EpicTask> epicTask = taskManager.getEpicTask(id.get());
-
-        if (epicTask.isPresent()) {
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-            sendResponse(exchange, gson.toJson(epicTask.get()), 200);
-        } else {
-            sendResponse(exchange, NOT_FOUND, 404);
+            case "POST" -> createOrUpdateTask(exchange);
+            case "DELETE" -> deleteTask(exchange);
         }
     }
 
@@ -72,36 +48,28 @@ public class EpicHandler extends BaseHttpHandler {
         sendResponse(exchange, response, 200);
     }
 
-    private void deleteEpic(HttpExchange exchange) throws IOException {
-        Optional<Integer> id = parseIdFromRequest(exchange);
-
-        if (id.isEmpty()) {
-            sendResponse(exchange, INVALID_REQUEST, 400);
-            return;
-        }
-
-        try {
-            taskManager.removeEpicTask(id.get());
-            sendResponse(exchange, SUCCESS, 200);
-        } catch (NotFoundTaskException e) {
-            sendResponse(exchange, NOT_FOUND, 404);
-        }
+    @Override
+    protected Optional<EpicTask> getTaskFromManager(int id) {
+        return taskManager.getEpicTask(id);
     }
 
-    private void createOrUpdateEpic(HttpExchange exchange) throws IOException {
-        String requestBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
-        EpicTask epicTask = gson.fromJson(requestBody, EpicTask.class);
+    @Override
+    protected void removeById(int id) {
+        taskManager.removeEpicTask(id);
+    }
 
-        if (epicTask.getId() == DEFAULT_ID) {
-            taskManager.addEpicTask(epicTask);
-            sendResponse(exchange, CREATE_EPIC, 201);
-            return;
-        }
+    @Override
+    protected EpicTask taskFromGson(String requestBody) {
+        return gson.fromJson(requestBody, EpicTask.class);
+    }
 
-        if (taskManager.updateEpicTask(epicTask)) {
-            sendResponse(exchange, UPDATE_EPIC, 201);
-        } else {
-            sendResponse(exchange, NOT_FOUND, 404);
-        }
+    @Override
+    protected <T extends Task> void addTask(T task) {
+        taskManager.addEpicTask((EpicTask) task);
+    }
+
+    @Override
+    protected <T extends Task> boolean updateTask(T task) {
+        return taskManager.updateEpicTask((EpicTask) task);
     }
 }

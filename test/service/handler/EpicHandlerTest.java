@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static service.handler.BaseHttpHandler.INVALID_REQUEST;
-import static service.handler.BaseHttpHandler.NOT_FOUND;
+import static service.handler.BaseHttpHandler.*;
 
 class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
@@ -189,7 +188,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("EpicTask created", response.body());
+        assertEquals(CREATE, response.body());
         assertEquals(1, taskManager.getEpicTasksList().size());
     }
 
@@ -204,7 +203,7 @@ class EpicHandlerTest extends TypeToken<List<EpicTask>> {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(201, response.statusCode());
-        assertEquals("EpicTask updated", response.body());
+        assertEquals(UPDATE, response.body());
         assertEquals("epicTaskUpdated", taskManager.getEpicTask(epicTask.getId()).get().getName(),
                 "Информация о задача должна обновится");
 
