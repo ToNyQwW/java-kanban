@@ -1,7 +1,7 @@
 package service;
 
+import model.Node;
 import model.Task;
-import service.historyModel.Node;
 import service.interfaces.HistoryManager;
 
 import java.util.ArrayList;
